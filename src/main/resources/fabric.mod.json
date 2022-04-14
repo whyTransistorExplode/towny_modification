@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "towny_helper",
+  "version": "0.0.1",
+
+  "name": "Example Mod",
+  "description": "This is a mod to help towny mod with its resources!",
+  "authors": [
+    "M_U_DV!"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/towny_helper/heart.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "net.fabricmc.towny_helper.ClientMod"
+    ]
+  },
+"mixins": [
+"towny_helper.mixins.json"
+],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": "1.17.x"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

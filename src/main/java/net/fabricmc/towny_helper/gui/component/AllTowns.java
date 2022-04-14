@@ -1,0 +1,116 @@
+package net.fabricmc.towny_helper.gui.component;
+
+import io.github.cottonmc.cotton.gui.GuiDescription;
+import io.github.cottonmc.cotton.gui.widget.*;
+import io.github.cottonmc.cotton.gui.widget.data.InputResult;
+import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
+import net.fabricmc.fabric.mixin.gametest.MinecraftServerMixin;
+import net.fabricmc.towny_helper.MainMod;
+import net.fabricmc.towny_helper.entity.ModifiedWList;
+import net.fabricmc.towny_helper.entity.Town;
+import net.fabricmc.towny_helper.gui.TownsGUI;
+import net.fabricmc.towny_helper.gui.manager.ScreenManager;
+import net.fabricmc.towny_helper.gui.model.TownModel;
+import net.fabricmc.towny_helper.service.Service;
+import net.fabricmc.towny_helper.superiors.ComponentListMethodsInterface;
+import net.fabricmc.towny_helper.utils.Storage;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.MinecraftClientGame;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.MinecraftDedicatedServer;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+
+public class AllTowns extends WPlainPanel implements ComponentListMethodsInterface {
+    WButton reloadTowns;
+    ModifiedWList<Town, TownModel> listTownPanel;
+    WButton searchButton;
+    WTextField searchByName;
+    ArrayList<Town> searchTowns;
+    WLabel stats;
+
+    public AllTowns() {
+        initializeVariables();
+        setEvents();
+        registerWidgets();
+        refreshList();
+        setSize(380, 200);
+    }
+
+    public void refreshList() {
+
+        if (MainMod.getTowns() != null) {
+
+            BiConsumer<Town, TownModel> townModelConfigurator = (Town town, TownModel townModel) -> {
+                townModel.setTown(town);
+                townModel.setFlagType(Storage.getBlackListedTowns().contains(town.getName()), Storage.getWhiteListedTowns().contains(town.getName()));
+            };
+
+            this.remove(listTownPanel);
+            if (searchTowns != null)
+            listTownPanel = new ModifiedWList<>(searchTowns, TownModel::new, townModelConfigurator);
+            else
+            listTownPanel = new ModifiedWList<>(MainMod.getTowns(), TownModel::new, townModelConfigurator);
+
+            listTownPanel.layout();
+            listTownPanel.setListItemHeight(30);
+            this.add(listTownPanel, 0, 26, 370, 140);
+            stats.setText(new LiteralText(MainMod.getTowns().size() + " towns in this server").setStyle(Style.EMPTY.withExclusiveFormatting(Formatting.DARK_GRAY)));
+        }
+    }
+
+    public void initializeVariables() {
+        reloadTowns = new WButton(new TextureIcon(new Identifier("towny_helper", "/refresh.png"))).setLabel(Text.of("reload"));
+        searchButton = new WButton(new TextureIcon(new Identifier("towny_helper:refresh.png")));
+        searchByName = new WTextField().setSuggestion(new LiteralText("search").setStyle(Style.EMPTY.withItalic(true)));
+        stats = new WLabel("");
+    }
+
+    @Override
+    public void registerWidgets() {
+        this.add(reloadTowns, 1, 5, 90, 30);
+        this.add(searchByName, 275, 5, 100, 18);
+        this.add(searchButton, 245, 5);
+        this.add(stats,95,7);
+    }
+
+    public void setEvents() {
+        reloadTowns.setOnClick(new Runnable() {
+            @Override
+            public void run() {
+                Service service = new Service();
+                service.setTowns("0");
+                refreshList();
+                MinecraftClient.getInstance().setScreen(new ScreenManager(new TownsGUI()));
+            }
+        });
+        searchButton.setOnClick(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
+        searchByName.setChangedListener(innerText ->{
+
+            if (MainMod.getTowns() != null) {
+                if (searchByName.getText().length() < 1) searchTowns = null;
+                else
+                searchTowns = Service.searchTownyByName(MainMod.getTowns(),searchByName.getText());
+                refreshList();
+            }
+        });
+
+    }
+
+
+}
