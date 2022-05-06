@@ -52,7 +52,7 @@ public class AllTowns extends WPlainPanel implements ComponentListMethodsInterfa
         if (MainMod.getTowns() != null) {
 
             BiConsumer<Town, TownModel> townModelConfigurator = (Town town, TownModel townModel) -> {
-                townModel.setTown(town);
+                townModel.setTown(town, 0);
                 townModel.setFlagType(Storage.getBlackListedTowns().contains(town.getName()), Storage.getWhiteListedTowns().contains(town.getName()));
             };
 
@@ -88,18 +88,12 @@ public class AllTowns extends WPlainPanel implements ComponentListMethodsInterfa
         reloadTowns.setOnClick(new Runnable() {
             @Override
             public void run() {
-                Service service = new Service();
-                service.setTowns("0");
+                Service.getInstance().setTowns("0");
                 refreshList();
                 MinecraftClient.getInstance().setScreen(new ScreenManager(new TownsGUI()));
             }
         });
-        searchButton.setOnClick(new Runnable() {
-            @Override
-            public void run() {
 
-            }
-        });
         searchByName.setChangedListener(innerText ->{
 
             if (MainMod.getTowns() != null) {

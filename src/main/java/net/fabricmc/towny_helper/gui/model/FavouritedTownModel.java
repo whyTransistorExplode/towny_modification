@@ -8,7 +8,6 @@ import io.github.cottonmc.cotton.gui.widget.WSprite;
 import io.github.cottonmc.cotton.gui.widget.icon.ItemIcon;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import net.fabricmc.towny_helper.entity.Town;
-import net.fabricmc.towny_helper.gui.component.BlackedTowns;
 import net.fabricmc.towny_helper.gui.component.FavouriteTowns;
 import net.fabricmc.towny_helper.utils.Storage;
 import net.minecraft.item.ItemStack;
@@ -23,7 +22,8 @@ public class FavouritedTownModel extends WPlainPanel {
     private WButton spawnButton;
     private WButton unFavouriteButton;
     private Town town;
-    private WPlainPanel he = this;
+    private String townName;
+    private WPlainPanel self = this;
 
     public FavouritedTownModel() {
         sprite = new WSprite(new Identifier("towny_helper", "/green_flag.png"));
@@ -34,7 +34,7 @@ public class FavouritedTownModel extends WPlainPanel {
         this.setBackgroundPainter(backgroundPainter);
         textTownName = new WLabel("Unkown");
         this.add(textTownName, 50, 5);
-        townCoords = new WLabel("x:0 y:0 z:0").setColor(3);
+        townCoords = new WLabel("-------").setColor(3);
         this.add(townCoords, 50, 15);
 
 
@@ -51,8 +51,8 @@ public class FavouritedTownModel extends WPlainPanel {
         unFavouriteButton.setOnClick(new Runnable() {
             @Override
             public void run() {
-                new Storage().removeTownWhiteListed(town.getName());
-                FavouriteTowns.whiteList.remove(he);
+                new Storage().removeTownWhiteListed(townName);
+                FavouriteTowns.whiteList.remove(self);
             }
         });
     }
@@ -65,14 +65,24 @@ public class FavouritedTownModel extends WPlainPanel {
                 sprite.setImage(new Identifier("towny_helper", "/green_flag.png"));
             textTownName.setText(Text.of(town.getName()));
             townCoords.setText(Text.of("X: " + town.getX() + " Y: " + town.getY() + " Z: " + town.getZ()));
+        }else{
+            sprite.setImage(new Identifier("towny_helper", "/black_flag.png"));
+            textTownName.setText(Text.of(this.townName));
+            townCoords.setText(Text.of("probably deleted"));
         }
     }
 
     public void setTown(Town town) {
         this.town = town;
+        this.townName = town.getName();
         refreshData();
         setUnFavouriteOnClick();
     }
 
+    public void setDeadTown(String townName){
+        setUnFavouriteOnClick();
+        this.townName = townName;
+        refreshData();
+    }
 
 }

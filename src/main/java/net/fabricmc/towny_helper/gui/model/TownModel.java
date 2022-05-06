@@ -22,27 +22,26 @@ public class TownModel extends WPlainPanel implements ComponentListMethodsInterf
     private WButton spawnButton;
     private WButton trashButton;
     private WButton favouriteButton;
+    private WButton searchButton;
     private Town town;
     private String flagType;
-    private String nearValue;
-
+    private int mode;  // modes: 0 none,  1 search mode
 
     public TownModel() {
 
     }
 
-    public void setTown(Town town) {
+    public void setTown(Town town, int mode) {
         this.town = town;
-
+        this.mode = mode;
         initializeVariables();
         registerWidgets();
         setEvents();
     }
 
     public void setNearValue(String inValue) {
-        this.nearValue = inValue;
-        textTownName.setText(Text.of(textTownName.getText().getString() + " ->  " + nearValue + "b"));
-        textTownName.addTooltip(new TooltipBuilder().add(Text.of("distance ->" + nearValue + " Blocks")));
+        textTownName.setText(Text.of(textTownName.getText().getString() + " ->  " + inValue + "b"));
+        textTownName.addTooltip(new TooltipBuilder().add(Text.of("distance ->" + inValue + " Blocks")));
     }
 
     public void deleteFavAndTrashButton() {
@@ -78,13 +77,19 @@ public class TownModel extends WPlainPanel implements ComponentListMethodsInterf
 
     @Override
     public void initializeVariables() {
-
         this.textTownName = new WLabel(new LiteralText(town.getName()).setStyle(Text.of("").getStyle().withColor(5)));
         this.townCoords = new WLabel(Text.of("X: " + town.getX() + " Y: " + town.getY() + " Z: " + town.getZ()));
-        spawnButton = new WButton(new ItemIcon(new ItemStack(Items.GRASS_BLOCK))).setLabel(Text.of("Spawn"));
-        favouriteButton = new WButton(new TextureIcon(new Identifier("towny_helper", "heart.png")));
-        trashButton = new WButton(new TextureIcon(new Identifier("towny_helper", "trash.png")));
-        sprite = new WSprite(new Identifier("towny_helper", "green_flag.png"));
+
+        if (mode == 0) {
+            spawnButton = new WButton(new ItemIcon(new ItemStack(Items.GRASS_BLOCK))).setLabel(Text.of("Spawn"));
+            favouriteButton = new WButton(new TextureIcon(new Identifier("towny_helper", "heart.png")));
+            trashButton = new WButton(new TextureIcon(new Identifier("towny_helper", "trash.png")));
+            sprite = new WSprite(new Identifier("towny_helper", "green_flag.png"));
+        }else if (mode == 1){
+
+            searchButton = new WButton(Text.of("hello world"));
+        }
+
     }
 
     public void registerWidgets() {

@@ -31,7 +31,7 @@ public class FindPlayer extends WPlainPanel {
         if (MainMod.getPlayerCloseTownsList()!=null && MainMod.getPlayerCloseTownsList().size()>0){
 
             BiConsumer<Map.Entry<Town, Double>, TownModel> modelConfigurator = (nearbyTowns, model)->{
-                model.setTown(nearbyTowns.getKey());
+                model.setTown(nearbyTowns.getKey(), 0);
                 model.deleteFavAndTrashButton();
 
             };

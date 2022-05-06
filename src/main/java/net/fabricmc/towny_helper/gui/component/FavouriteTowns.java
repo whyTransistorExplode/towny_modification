@@ -24,10 +24,14 @@ public class FavouriteTowns extends WPlainPanel {
     }
     public void listRefresh(){
         if (MainMod.getTowns() != null && Storage.getWhiteListedTowns() != null){
+
             BiConsumer<String, FavouritedTownModel> whiteListedTownsConfigurator =
+
                     (String townName, FavouritedTownModel favouriteTownModel) ->{
+                    boolean flag = false;
                         for (Town town : MainMod.getTowns()) {
                             if (townName.equals(town.getName())){
+                                flag = true;
                                 favouriteTownModel.setTown(town);
                                 favouriteTownModel.setSpawnOnClick(new Runnable() {
                                     @Override
@@ -42,13 +46,17 @@ public class FavouriteTowns extends WPlainPanel {
                                 break;
                             }
                         }
+                        if (!flag){
+                            favouriteTownModel.setDeadTown(townName);
+                        }
+
                     };
             this.children.clear();
             whiteList = new WListPanel<String, FavouritedTownModel>(Storage.getWhiteListedTowns(),FavouritedTownModel::new,whiteListedTownsConfigurator);
             whiteList.setListItemHeight(30);
             whiteList.layout();
-            this.add(whiteList,0,26,360,130);
-            whiteList.setSize(360,130);
+            this.add(whiteList,0,26,360,150);
+            whiteList.setSize(360,150);
         }
     }
 }
