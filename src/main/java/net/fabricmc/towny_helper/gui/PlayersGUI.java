@@ -13,7 +13,15 @@ import net.minecraft.text.Text;
 
 public class PlayersGUI extends LightweightGuiDescription {
     WTabPanel tabs;
-    public PlayersGUI()
+
+    private static PlayersGUI instance = null;
+
+    public static PlayersGUI getInstance(){
+        if (instance == null) instance = new PlayersGUI();
+        return  instance;
+    }
+
+    private PlayersGUI()
     {
         tabs = new WTabPanel();
 

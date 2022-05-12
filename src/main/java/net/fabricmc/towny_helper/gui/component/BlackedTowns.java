@@ -7,14 +7,21 @@ import net.fabricmc.towny_helper.MainMod;
 import net.fabricmc.towny_helper.entity.Town;
 import net.fabricmc.towny_helper.gui.model.BlackedTownsModel;
 import net.fabricmc.towny_helper.utils.Storage;
+import org.apache.logging.log4j.core.pattern.AbstractStyleNameConverter;
 
 import java.util.function.BiConsumer;
 
 public class BlackedTowns extends WPlainPanel {
     private WLabel text;
     public static WListPanel<String, BlackedTownsModel> blackedList;
+    public static BlackedTowns instance = null;
 
-    public BlackedTowns() {
+    public static BlackedTowns getInstance(){
+        if (instance == null) instance = new BlackedTowns();
+        return instance;
+    }
+
+    private BlackedTowns() {
         if (MainMod.getTowns() != null && Storage.getBlackListedTowns() != null){
 
             BiConsumer<String, BlackedTownsModel> blackListedTownsConfigurator =

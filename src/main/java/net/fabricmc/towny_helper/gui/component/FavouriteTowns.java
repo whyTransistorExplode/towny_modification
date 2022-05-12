@@ -1,7 +1,5 @@
 package net.fabricmc.towny_helper.gui.component;
 
-import io.github.cottonmc.cotton.gui.client.LibGui;
-import io.github.cottonmc.cotton.gui.impl.client.LibGuiClient;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WListPanel;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
@@ -16,12 +14,22 @@ import java.util.function.BiConsumer;
 public class FavouriteTowns extends WPlainPanel {
     private WLabel text;
     public static WListPanel<String, FavouritedTownModel> whiteList;
-    public FavouriteTowns() {
+
+    private static FavouriteTowns instance = null;
+
+    public static FavouriteTowns getInstance(){
+        if (instance == null) instance = new FavouriteTowns();
+        instance.listRefresh();
+        return instance;
+    }
+
+    private FavouriteTowns() {
 
 //        text = new WLabel("");
 //        this.add(text,0,0);
         listRefresh();
     }
+
     public void listRefresh(){
         if (MainMod.getTowns() != null && Storage.getWhiteListedTowns() != null){
 

@@ -25,6 +25,7 @@ public class ModifiedWList<D, W extends WWidget> extends WListPanel {
     public void setHost(@Nullable GuiDescription host) {
         super.setHost(host);
         scrollBar.setHost(this.host);
+
     }
     public void setScroll(int value){
         this.scrollBar.setValue(value);

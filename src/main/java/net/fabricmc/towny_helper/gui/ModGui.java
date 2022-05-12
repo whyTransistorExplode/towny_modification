@@ -16,7 +16,14 @@ public class ModGui extends LightweightGuiDescription implements ComponentListMe
     WButton serverTerraButton;
     WButton disableLooking;
 
-    public ModGui() {
+    private static ModGui instance = null;
+
+    public static ModGui getInstance(){
+        if (instance == null) instance = new ModGui();
+        return  instance;
+    }
+
+    private ModGui() {
 initializeVariables();
 setEvents();
 registerWidgets();
@@ -54,34 +61,25 @@ registerWidgets();
 
     @Override
     public void setEvents() {
-        disableLooking.setOnClick(new Runnable() {
-            @Override
-            public void run() {
-                MainMod.setIsLooking(false);
-                MainMod.dynamicTracker = false;
-                disableLooking.setEnabled(false);
-            }
+        disableLooking.setOnClick(() -> {
+            MainMod.setIsLooking(false);
+            MainMod.dynamicTracker = false;
+            disableLooking.setEnabled(false);
         });
-        serverGaiaButton.setOnClick(new Runnable() {
-            @Override
-            public void run() {
-                MainMod.setServerName("gaia");
-                reloadFilesInThread();
-                serverGaiaButton.setEnabled(false);
-                serverTerraButton.setEnabled(true);
-                status.setText(Text.of("status: server(GAIA)"));
+        serverGaiaButton.setOnClick(() -> {
+            MainMod.setServerName("gaia");
+            reloadFilesInThread();
+            serverGaiaButton.setEnabled(false);
+            serverTerraButton.setEnabled(true);
+            status.setText(Text.of("status: server(GAIA)"));
 
-            }
         });
-        serverTerraButton.setOnClick(new Runnable() {
-            @Override
-            public void run() {
-                MainMod.setServerName("terra");
-                reloadFilesInThread();
-                serverTerraButton.setEnabled(false);
-                serverGaiaButton.setEnabled(true);
-                status.setText(Text.of("status: server(TERRA)"));
-            }
+        serverTerraButton.setOnClick(() -> {
+            MainMod.setServerName("terra");
+            reloadFilesInThread();
+            serverTerraButton.setEnabled(false);
+            serverGaiaButton.setEnabled(true);
+            status.setText(Text.of("status: server(TERRA)"));
         });
     }
 
@@ -92,13 +90,10 @@ registerWidgets();
 
     private void reloadFilesInThread(){
         if (MainMod.getServerName().length()> 0) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Storage storage = new Storage();
-                    storage.reloadBlackAndWhiteListTowns(MainMod.getServerName());
-                    storage.reloadFavPlayer(MainMod.getServerName());
-                }
+            new Thread(() -> {
+                Storage storage = new Storage();
+                storage.reloadBlackAndWhiteListTowns(MainMod.getServerName());
+                storage.reloadFavPlayer(MainMod.getServerName());
             }).start();
         }
     }

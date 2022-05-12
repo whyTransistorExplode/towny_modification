@@ -39,7 +39,14 @@ public class AllTowns extends WPlainPanel implements ComponentListMethodsInterfa
     ArrayList<Town> searchTowns;
     WLabel stats;
 
-    public AllTowns() {
+    public static AllTowns instance;
+
+    public static AllTowns getInstance(){
+        if (instance == null) instance = new AllTowns();
+        return instance;
+    }
+
+    private AllTowns() {
         initializeVariables();
         setEvents();
         registerWidgets();
@@ -90,7 +97,6 @@ public class AllTowns extends WPlainPanel implements ComponentListMethodsInterfa
             public void run() {
                 Service.getInstance().setTowns("0");
                 refreshList();
-                MinecraftClient.getInstance().setScreen(new ScreenManager(new TownsGUI()));
             }
         });
 

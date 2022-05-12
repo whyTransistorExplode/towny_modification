@@ -14,7 +14,14 @@ import net.minecraft.text.LiteralText;
 public class TownsGUI extends LightweightGuiDescription {
     WTabPanel tabs;
 
-    public TownsGUI() {
+    private static TownsGUI instance = null;
+
+    public static TownsGUI getInstance(){
+        if (instance == null) instance = new TownsGUI();
+        return instance;
+    }
+
+    private TownsGUI() {
       refreshGUI();
     }
     public void refreshGUI(){
@@ -23,12 +30,12 @@ public class TownsGUI extends LightweightGuiDescription {
         setRootPanel(tabs);
 
         tabs.setSize(380,200);
-        AllTowns allTowns = new AllTowns();
-        FavouriteTowns favouriteTowns = new FavouriteTowns();
-        BlackedTowns blackedTowns = new BlackedTowns();
-        FindTown findTown = new FindTown();
+        AllTowns allTowns = AllTowns.getInstance();
+        FavouriteTowns favouriteTowns = FavouriteTowns.getInstance();
+        favouriteTowns.listRefresh();
+        BlackedTowns blackedTowns = BlackedTowns.getInstance();
+        FindTown findTown = FindTown.getInstance();
 
-        tabs.streamChildren()
         tabs.add(allTowns, tab ->
                 tab.icon(new ItemIcon(new ItemStack(Items.WRITABLE_BOOK))).title(new LiteralText("Towns")).build()
         );

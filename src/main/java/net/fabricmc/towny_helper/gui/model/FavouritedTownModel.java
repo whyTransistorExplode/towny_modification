@@ -16,14 +16,14 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class FavouritedTownModel extends WPlainPanel {
-    private WSprite sprite;
-    private WLabel textTownName;
-    private WLabel townCoords;
-    private WButton spawnButton;
-    private WButton unFavouriteButton;
+    private final WSprite sprite;
+    private final WLabel textTownName;
+    private final WLabel townCoords;
+    private final WButton spawnButton;
+    private final WButton unFavouriteButton;
     private Town town;
     private String townName;
-    private WPlainPanel self = this;
+    private final WPlainPanel self = this;
 
     public FavouritedTownModel() {
         sprite = new WSprite(new Identifier("towny_helper", "/green_flag.png"));
@@ -48,12 +48,10 @@ public class FavouritedTownModel extends WPlainPanel {
         spawnButton.setOnClick(onClick);
     }
     public void setUnFavouriteOnClick() {
-        unFavouriteButton.setOnClick(new Runnable() {
-            @Override
-            public void run() {
-                new Storage().removeTownWhiteListed(townName);
-                FavouriteTowns.whiteList.remove(self);
-            }
+        unFavouriteButton.setOnClick(() -> {
+            new Storage().removeTownWhiteListed(townName);
+            FavouriteTowns.whiteList.remove(self);
+            FavouriteTowns.getInstance().listRefresh();
         });
     }
 

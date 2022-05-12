@@ -56,7 +56,7 @@ public class HttpsClient{
                 }
                 br.close();
 
-                return content.toString().toString();
+                return content.toString();
             } catch (IOException e) {
                 e.printStackTrace();
             }

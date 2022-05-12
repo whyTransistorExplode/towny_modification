@@ -60,13 +60,13 @@ public class ClientMod implements ClientModInitializer {
 
             }
             while (PlayersGui.wasPressed()){
-                MinecraftClient.getInstance().setScreen(new ScreenManager(new PlayersGUI()));
+                MinecraftClient.getInstance().setScreen(new ScreenManager(PlayersGUI.getInstance()));
             }
             while (TownsGui.wasPressed()){
-                MinecraftClient.getInstance().setScreen(new ScreenManager(new TownsGUI()));
+                MinecraftClient.getInstance().setScreen(new ScreenManager(TownsGUI.getInstance()));
             }
             while(modGui.wasPressed()){
-                MinecraftClient.getInstance().setScreen(new ScreenManager(new ModGui()));
+                MinecraftClient.getInstance().setScreen(new ScreenManager(ModGui.getInstance()));
             }
         });
 

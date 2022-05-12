@@ -22,7 +22,6 @@ public class MainMod {
     private static boolean isSupplyCrateForTerra = false;
     private static LocalTime lastSupplyCrate;
     private static String serverName = "";
-    public static TownsGUI townsGUI;
     private static List<Map.Entry<Town, Double>> playerCloseTownsList;
     private static List<Map.Entry<Town, Double>> townCloseTownsList;
     private static Player lookingPlayer;
@@ -37,7 +36,6 @@ public class MainMod {
     public static float degrees;
     private static boolean playerHidden;
 
-    public  static int counter;
     public static long lastMillisTime;
     public static  long leftMillis;
 
