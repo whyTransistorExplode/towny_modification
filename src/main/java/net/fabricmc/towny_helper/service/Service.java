@@ -122,7 +122,7 @@ public static Service getInstance(){
         };
 
         List<Entry<Town, Double>> listOfEntries
-                = new ArrayList<Entry<Town, Double>>(entries);
+                = new ArrayList<>(entries);
         listOfEntries.sort(valueComparator);
         return listOfEntries;
     }

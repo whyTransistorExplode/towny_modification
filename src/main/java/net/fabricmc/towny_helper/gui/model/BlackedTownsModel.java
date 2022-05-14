@@ -41,14 +41,11 @@ public class BlackedTownsModel extends WPlainPanel {
         this.add(UnBlackButton, 235, 5, 90, 0);
     }
     public void setUnBlackOnClick() {
-        UnBlackButton.setOnClick(new Runnable() {
-            @Override
-            public void run() {
-                new Storage().removeTownBlackListed(town.getName());
-                BlackedTowns.blackedList.remove(he);
-                BlackedTowns.blackedList.layout();
+        UnBlackButton.setOnClick(() -> {
+            new Storage().removeTownBlackListed(town.getName());
+//            BlackedTowns.blackedList.remove(he);
+//            BlackedTowns.blackedList.layout();
 
-            }
         });
     }
 

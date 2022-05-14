@@ -1,5 +1,6 @@
 package net.fabricmc.towny_helper.gui;
 
+import com.mojang.datafixers.TypeRewriteRule;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WTabPanel;
 import io.github.cottonmc.cotton.gui.widget.icon.ItemIcon;
@@ -29,11 +30,11 @@ public class PlayersGUI extends LightweightGuiDescription {
         tabs.setSize(380,200);
 
 
-        AllPlayers allPlayers = new AllPlayers();
+
         FavouritePlayers favouritePlayers = new FavouritePlayers();
         FindPlayer findPlayer = new FindPlayer();
 
-        tabs.add(allPlayers, tab ->
+        tabs.add(AllPlayers.getInstance(), tab ->
                 tab.icon(new ItemIcon(new ItemStack(Items.APPLE))).title(new LiteralText("Players Online"))
         );
         tabs.add(favouritePlayers, tab ->

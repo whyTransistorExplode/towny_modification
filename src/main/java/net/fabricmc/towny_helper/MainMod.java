@@ -2,7 +2,6 @@ package net.fabricmc.towny_helper;
 
 import net.fabricmc.towny_helper.entity.Player;
 import net.fabricmc.towny_helper.entity.Town;
-import net.fabricmc.towny_helper.gui.TownsGUI;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
@@ -30,6 +29,9 @@ public class MainMod {
     public static boolean dynamicTracker;
     public static boolean isDynamicTrackerFirst;
     private static boolean isLooking;
+
+    private static LookingStatus lookingStatus;
+    public enum LookingStatus{ OFFLINE, TRACK_BY_COORDINATES, TRACK_BY_TOWN, TRACK_AFTER_PLAYER}
     private static Identifier compassTexture;
     private static int compassTextureUID;
     public static MatrixStack matrices;
@@ -41,6 +43,14 @@ public class MainMod {
 
     public static int getDistance() {
         return distance;
+    }
+
+    public static LookingStatus getLookingStatus() {
+        return lookingStatus;
+    }
+
+    public static void setLookingStatus(LookingStatus lookingStatus) {
+        MainMod.lookingStatus = lookingStatus;
     }
 
     public static void setDistance(int distance) {

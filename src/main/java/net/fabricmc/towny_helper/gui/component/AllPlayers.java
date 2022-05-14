@@ -4,14 +4,11 @@ import io.github.cottonmc.cotton.gui.widget.*;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import net.fabricmc.towny_helper.MainMod;
 import net.fabricmc.towny_helper.entity.Player;
-import net.fabricmc.towny_helper.entity.Town;
-import net.fabricmc.towny_helper.gui.PlayersGUI;
-import net.fabricmc.towny_helper.gui.manager.ScreenManager;
+import net.fabricmc.towny_helper.gui.annotation.runner.AnnotationRunner;
 import net.fabricmc.towny_helper.gui.model.PlayerModel;
 import net.fabricmc.towny_helper.service.Service;
 import net.fabricmc.towny_helper.superiors.ComponentListMethodsInterface;
 import net.fabricmc.towny_helper.utils.Storage;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -29,7 +26,14 @@ public class AllPlayers extends WPlainPanel implements ComponentListMethodsInter
     private ArrayList<Player> searchedPlayers;
     private WTextField searchNameInput;
 
-    public AllPlayers(){
+    public static AllPlayers instance = null;
+
+    public static AllPlayers getInstance(){
+        if (instance == null) instance = new AllPlayers();
+        return instance;
+    }
+
+    private AllPlayers(){
         setSize(380,200);
         initializeVariables();
         setEvents();
@@ -50,8 +54,7 @@ public class AllPlayers extends WPlainPanel implements ComponentListMethodsInter
             this.remove(playerWList);
             if (searchedPlayers!=null)
             playerWList = new WListPanel<>(searchedPlayers, PlayerModel::new, playerModelConfigurator);
-            else
-            playerWList = new WListPanel<>(MainMod.getPlayers(), PlayerModel::new, playerModelConfigurator);
+            else playerWList = new WListPanel<>(MainMod.getPlayers(), PlayerModel::new, playerModelConfigurator);
             playerWList.setListItemHeight(30);
             playerWList.layout();
 
@@ -60,26 +63,22 @@ public class AllPlayers extends WPlainPanel implements ComponentListMethodsInter
     }
 
     public void setEvents(){
-        refreshButton.setOnClick(new Runnable() {
-            @Override
-            public void run() {
+        refreshButton.setOnClick(() -> {
 
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Service.getInstance().setPlayers("0");
-                    }
-                });
-                refreshList();
+            Thread thread = new Thread(() -> {
+                Service.getInstance().setPlayers("0");
+                AnnotationRunner.runUpdateGUIAnnotation();
+            });
+            thread.start();
+
 //                MinecraftClient.getInstance().setScreen(new ScreenManager(new PlayersGUI()));
-            }
         });
 
         searchNameInput.setChangedListener(inputName ->{
             if (MainMod.getPlayers() !=null) {
                 if (inputName.length() < 1) searchedPlayers =null;
-                else
-                searchedPlayers = Service.searchPlayersByName(MainMod.getPlayers(), inputName);
+                else searchedPlayers = Service.searchPlayersByName(MainMod.getPlayers(), inputName);
+
                 refreshList();
             }
         });

@@ -32,10 +32,13 @@ public class TownsGUI extends LightweightGuiDescription {
         tabs.setSize(380,200);
         AllTowns allTowns = AllTowns.getInstance();
         FavouriteTowns favouriteTowns = FavouriteTowns.getInstance();
-        favouriteTowns.listRefresh();
         BlackedTowns blackedTowns = BlackedTowns.getInstance();
         FindTown findTown = FindTown.getInstance();
 
+        allTowns.setHost(this);
+        favouriteTowns.setHost(this);
+        findTown.setHost(this);
+        blackedTowns.setHost(this);
         tabs.add(allTowns, tab ->
                 tab.icon(new ItemIcon(new ItemStack(Items.WRITABLE_BOOK))).title(new LiteralText("Towns")).build()
         );

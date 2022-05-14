@@ -9,6 +9,7 @@ import net.fabricmc.towny_helper.MainMod;
 import net.fabricmc.towny_helper.entity.ModifiedWList;
 import net.fabricmc.towny_helper.entity.Town;
 import net.fabricmc.towny_helper.gui.TownsGUI;
+import net.fabricmc.towny_helper.gui.annotation.runner.AnnotationRunner;
 import net.fabricmc.towny_helper.gui.manager.ScreenManager;
 import net.fabricmc.towny_helper.gui.model.TownModel;
 import net.fabricmc.towny_helper.service.Service;
@@ -92,12 +93,9 @@ public class AllTowns extends WPlainPanel implements ComponentListMethodsInterfa
     }
 
     public void setEvents() {
-        reloadTowns.setOnClick(new Runnable() {
-            @Override
-            public void run() {
-                Service.getInstance().setTowns("0");
-                refreshList();
-            }
+        reloadTowns.setOnClick(() -> {
+            Service.getInstance().setTowns("0");
+            AnnotationRunner.runUpdateGUIAnnotation();
         });
 
         searchByName.setChangedListener(innerText ->{

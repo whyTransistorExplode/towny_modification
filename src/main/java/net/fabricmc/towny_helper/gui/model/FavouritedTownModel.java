@@ -51,7 +51,7 @@ public class FavouritedTownModel extends WPlainPanel {
         unFavouriteButton.setOnClick(() -> {
             new Storage().removeTownWhiteListed(townName);
             FavouriteTowns.whiteList.remove(self);
-            FavouriteTowns.getInstance().listRefresh();
+            FavouriteTowns.getInstance().refreshList();
         });
     }
 

@@ -1,12 +1,17 @@
 package net.fabricmc.towny_helper.gui.component;
 
 import io.github.cottonmc.cotton.gui.widget.*;
+import io.github.cottonmc.cotton.gui.widget.icon.ItemIcon;
 import net.fabricmc.towny_helper.MainMod;
 import net.fabricmc.towny_helper.entity.Town;
 import net.fabricmc.towny_helper.gui.model.TownModel;
 import net.fabricmc.towny_helper.service.Service;
+import net.fabricmc.towny_helper.superiors.ComponentListMethodsInterface;
 import net.fabricmc.towny_helper.utils.Storage;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -14,9 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class FindTown extends WPlainPanel {
+public class FindTown extends WPlainPanel implements ComponentListMethodsInterface {
 
-    private static final int LIST_SIZE_WIDTH = 360, LIST_SIZE_HEIGHT = 140, LIST_POS_X = 0, LIST_POS_Y = 28,
+    private static final int LIST_SIZE_WIDTH = 360, LIST_SIZE_HEIGHT = 140, LIST_POS_X = 0, LIST_POS_Y = 40,
     LIST_ITEM_HEIGHT = 30;
     private WButton searchButton;
     private WTextField inputTownName;
@@ -24,7 +29,7 @@ public class FindTown extends WPlainPanel {
     private WListPanel<Town, TownModel> searchTownList;
     private WTextField inputX;
     private WTextField inputZ;
-    private WToggleButton toggleButton;
+
     private WLabel targetTownName;
 
     /**
@@ -44,43 +49,45 @@ public class FindTown extends WPlainPanel {
         initializeVariables();
         setEvents();
         registerWidgets();
-        renderList();
+        refreshList();
     }
 
-    private void initializeVariables() {
+    public void initializeVariables() {
 
-        inputTownName = new WTextField().setSuggestion("Town name");
-        searchButton = new WButton(Text.of("search"));
+        inputTownName = new WTextField().setSuggestion("search Town");
+        inputTownName.setMaxLength(30);
+        searchButton = new WButton(new ItemIcon(new ItemStack(Items.COMPASS)));
         inputX = new WTextField(Text.of("enter X"));
-        inputX.setEditable(false);
         inputZ = new WTextField(Text.of("enter Z"));
-        inputZ.setEditable(false);
-        toggleButton = new WToggleButton();
+
         targetTownName = new WLabel("");
         targetTownName.setColor(0);
     }
 
-    private void setEvents() {
+    public void setEvents() {
 
         searchButton.setOnClick(() -> {
+           /*
             if (!toggleButton.getToggle()) {
-//                String inputValue = inputTownName.getText();
-//                if (inputValue.equals("") || MainMod.getTowns() == null) return;
-//
-//                for (Town town : MainMod.getTowns()) {
-//                    if (inputValue.equalsIgnoreCase(town.getName()) || inputValue.toLowerCase().startsWith(town.getName().toLowerCase())) {
-//                        ArrayList<Town> towns = (ArrayList<Town>) MainMod.getTowns().clone();
-//                        towns.remove(town);
-//                        MainMod.setXYZ(town.getX(), town.getY(), town.getZ());
-//                        MainMod.setTownCloseTownsList(Service.computeClosePathTowns(town.getX(), town.getY(), town.getZ(), towns, 20));
-//                        MainMod.setIsLooking(true);
-//                        MainMod.setLookingTown(town);
-//                        renderList();
-//                        break;
-//                    }
-//                }
+                String inputValue = inputTownName.getText();
+                if (inputValue.equals("") || MainMod.getTowns() == null) return;
+
+                for (Town town : MainMod.getTowns()) {
+                    if (inputValue.equalsIgnoreCase(town.getName()) || inputValue.toLowerCase().startsWith(town.getName().toLowerCase())) {
+                        ArrayList<Town> towns = (ArrayList<Town>) MainMod.getTowns().clone();
+                        towns.remove(town);
+                        MainMod.setXYZ(town.getX(), town.getY(), town.getZ());
+                        MainMod.setTownCloseTownsList(Service.computeClosePathTowns(town.getX(), town.getY(), town.getZ(), towns, 20));
+                        MainMod.setIsLooking(true);
+                        MainMod.setLookingTown(town);
+                        renderList();
+                        break;
+                    }
+                }
             }
-            else {
+            else
+            */
+            {
                 if (inputX.getText().length() < 1 || inputZ.getText().length() < 1) return;
                 try {
                     int coordX = Integer.parseInt(inputX.getText());
@@ -88,7 +95,8 @@ public class FindTown extends WPlainPanel {
                     MainMod.setXYZ(coordX, 0, coordZ);
                     MainMod.setTownCloseTownsList(Service.computeClosePathTowns(coordX, 64, coordZ, MainMod.getTowns(), 20));
                     MainMod.setIsLooking(true);
-                    renderList();
+                    MainMod.setLookingStatus(MainMod.LookingStatus.TRACK_BY_COORDINATES);
+                    refreshList();
                 } catch (Exception e) {
                     System.out.println("couldn't parse the input values");
                 }
@@ -100,25 +108,14 @@ public class FindTown extends WPlainPanel {
             if (inputName.length() > 0) {
                 isCloseTown = false;
                 this.searchTowns = Service.searchTownyByName(MainMod.getTowns(), inputName);
-                renderList();
-            }else { renderList();}
-        });
-
-        toggleButton.setOnToggle(event -> {
-            if (event) {
-                inputTownName.setEditable(false);
-                inputX.setEditable(true);
-                inputZ.setEditable(true);
-
-            } else {
-                inputTownName.setEditable(true);
-                inputX.setEditable(false);
-                inputZ.setEditable(false);
             }
+            refreshList();
         });
     }
 
-    public void renderList() {
+
+    @Override
+    public void refreshList() {
         if (this.children.contains(closeTownList))
             this.remove(closeTownList);
         if (this.children.contains(searchTownList))
@@ -144,7 +141,7 @@ public class FindTown extends WPlainPanel {
                 closeTownList.layout();
                 closeTownList.setSize(LIST_SIZE_WIDTH, LIST_SIZE_HEIGHT);
                 this.add(closeTownList,LIST_POS_X, LIST_POS_Y, LIST_SIZE_WIDTH, LIST_SIZE_HEIGHT);
-                this.targetTownName.setText(Text.of(MainMod.getLookingTown().getName()));
+
             }
         } else {
             if (this.searchTowns != null) {
@@ -162,15 +159,23 @@ public class FindTown extends WPlainPanel {
                 this.add(searchTownList,LIST_POS_X, LIST_POS_Y, LIST_SIZE_WIDTH, LIST_SIZE_HEIGHT);
             }
         }
+
+        if (MainMod.isIsLooking()) {
+         if (MainMod.getLookingStatus() == MainMod.LookingStatus.TRACK_BY_TOWN)
+            this.targetTownName.setText(Text.of(MainMod.getLookingTown().getName() + "  X= " +
+                    MainMod.getLookingTown().getX() + ",  Z= " + MainMod.getLookingTown().getZ()));
+        else if (MainMod.getLookingStatus() == MainMod.LookingStatus.TRACK_BY_COORDINATES)
+             this.targetTownName.setText(Text.of( "Search is By Coordinates X= " +
+                     MainMod.getLookingX() + ",  Z= " + MainMod.getLookingZ()));
+        }
     }
 
-    private void registerWidgets() {
-        this.add(inputTownName, 0, 0, 100, 30);
-        this.add(searchButton, 110, 0, 70, 0);
-        this.add(toggleButton, 185, 3);
-        this.add(inputX, 210, 2, 50, 15);
-        this.add(inputZ, 260, 2, 50, 15);
-        this.add(targetTownName, 5, 23, 95, 10);
+    public void registerWidgets() {
+        this.add(inputTownName, 4, 4, 180, 30);
+        this.add(inputX, 210, 4, 60, 15);
+        this.add(inputZ, 270, 4, 60, 15);
+        this.add(searchButton, 335, 4, 26, 15);
+        this.add(targetTownName, 5, 28, 95, 10);
 
     }
     public void cleanInput(){ inputTownName.setText("");}

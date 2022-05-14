@@ -64,6 +64,7 @@ registerWidgets();
         disableLooking.setOnClick(() -> {
             MainMod.setIsLooking(false);
             MainMod.dynamicTracker = false;
+            MainMod.setLookingStatus(MainMod.LookingStatus.OFFLINE);
             disableLooking.setEnabled(false);
         });
         serverGaiaButton.setOnClick(() -> {

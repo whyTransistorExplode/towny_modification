@@ -8,6 +8,7 @@ import net.fabricmc.towny_helper.entity.Player;
 import net.fabricmc.towny_helper.entity.Town;
 import net.fabricmc.towny_helper.gui.model.PlayerModel;
 import net.fabricmc.towny_helper.gui.model.TownModel;
+import net.fabricmc.towny_helper.superiors.ComponentListMethodsInterface;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
@@ -17,10 +18,17 @@ import net.minecraft.util.Formatting;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class FindPlayer extends WPlainPanel {
+public class FindPlayer extends WPlainPanel implements ComponentListMethodsInterface {
     private WLabel showMessage;
     private WLabel targetPlayer;
     private WListPanel<Map.Entry<Town, Double>, TownModel> nearbyTownsListRender;
+
+    public static FindPlayer instance = null;
+
+    public static FindPlayer getInstance(){
+        if (instance == null) instance =  new FindPlayer();
+        return instance;
+    }
     public FindPlayer(){
         initializeVariables();
         refreshList();
@@ -33,7 +41,6 @@ public class FindPlayer extends WPlainPanel {
             BiConsumer<Map.Entry<Town, Double>, TownModel> modelConfigurator = (nearbyTowns, model)->{
                 model.setTown(nearbyTowns.getKey(), 0);
                 model.deleteFavAndTrashButton();
-
             };
             targetPlayer.setText(new LiteralText("player - " + MainMod.getLookingPlayer().getName()).setStyle(Style.EMPTY.withBold(true).withColor(Formatting.AQUA)));
             nearbyTownsListRender = new WListPanel<>(MainMod.getPlayerCloseTownsList(),TownModel::new,modelConfigurator);
@@ -42,13 +49,18 @@ public class FindPlayer extends WPlainPanel {
         }
     }
 
-    private void initializeVariables(){
+    public void initializeVariables(){
 //        showMessage = new WLabel(Text.of(""));
         targetPlayer = new WLabel(Text.of(""));
     }
-    private void registerWidgets(){
+    public void registerWidgets(){
         this.add(targetPlayer,5,10);
         if (nearbyTownsListRender!=null)
         this.add(nearbyTownsListRender,10,20,350,130);
+    }
+
+    @Override
+    public void setEvents() {
+
     }
 }
