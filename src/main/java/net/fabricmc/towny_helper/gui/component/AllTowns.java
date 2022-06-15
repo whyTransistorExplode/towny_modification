@@ -60,15 +60,38 @@ public class AllTowns extends WPlainPanel implements ComponentListMethodsInterfa
         if (MainMod.getTowns() != null) {
 
             BiConsumer<Town, TownModel> townModelConfigurator = (Town town, TownModel townModel) -> {
-                townModel.setTown(town, 0);
-                townModel.setFlagType(Storage.getBlackListedTowns().contains(town.getName()), Storage.getWhiteListedTowns().contains(town.getName()));
+               boolean bFlag = false;
+                for (Town blackedTown : Storage.getInstance().getBlackedTowns()) {
+                    if (blackedTown.getName().equals(town.getName())){
+                        Town cloneTown = new Town(blackedTown.getName(), town.getX(), town.getY(), town.getZ(), town.getIcon());
+                        cloneTown.setFav(blackedTown.getFav());
+                        cloneTown.setDescription(blackedTown.getDescription());
+                        bFlag = true;
+                        townModel.setTown(cloneTown,0);
+                        break;
+                    }
+                }
+                boolean wFlag = false;
+                if (!bFlag)
+                    for (Town whiteTown : Storage.getInstance().getWhiteTowns()){
+                    if (whiteTown.getName().equals(town.getName())){
+                        Town mixedTown = new Town(whiteTown.getName(), town.getX(), town.getY(), town.getZ(), town.getIcon());
+                        mixedTown.setFav(whiteTown.getFav());
+                        mixedTown.setDescription(whiteTown.getDescription());
+                        wFlag = true;
+                        townModel.setTown(mixedTown, 0);
+                        break;
+                    }
+                }
+                if (!bFlag && !wFlag)
+                    townModel.setTown(town,0);
             };
 
             this.remove(listTownPanel);
             if (searchTowns != null)
-            listTownPanel = new ModifiedWList<>(searchTowns, TownModel::new, townModelConfigurator);
+                listTownPanel = new ModifiedWList<>(searchTowns, TownModel::new, townModelConfigurator);
             else
-            listTownPanel = new ModifiedWList<>(MainMod.getTowns(), TownModel::new, townModelConfigurator);
+                listTownPanel = new ModifiedWList<>(MainMod.getTowns(), TownModel::new, townModelConfigurator);
 
             listTownPanel.layout();
             listTownPanel.setListItemHeight(30);
@@ -94,7 +117,8 @@ public class AllTowns extends WPlainPanel implements ComponentListMethodsInterfa
 
     public void setEvents() {
         reloadTowns.setOnClick(() -> {
-            Service.getInstance().setTowns("0");
+            if (MainMod.getOnlineData() == null || !MainMod.getOnlineData())
+                Service.getInstance().setTowns("0");
             AnnotationRunner.runUpdateGUIAnnotation();
         });
 
@@ -103,7 +127,7 @@ public class AllTowns extends WPlainPanel implements ComponentListMethodsInterfa
             if (MainMod.getTowns() != null) {
                 if (searchByName.getText().length() < 1) searchTowns = null;
                 else
-                searchTowns = Service.searchTownyByName(MainMod.getTowns(),searchByName.getText());
+                    searchTowns = Service.searchTownyByName(MainMod.getTowns(),searchByName.getText());
                 refreshList();
             }
         });

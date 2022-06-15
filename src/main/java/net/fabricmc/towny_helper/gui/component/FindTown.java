@@ -22,7 +22,7 @@ import java.util.function.BiConsumer;
 public class FindTown extends WPlainPanel implements ComponentListMethodsInterface {
 
     private static final int LIST_SIZE_WIDTH = 360, LIST_SIZE_HEIGHT = 140, LIST_POS_X = 0, LIST_POS_Y = 40,
-    LIST_ITEM_HEIGHT = 30;
+            LIST_ITEM_HEIGHT = 30;
     private WButton searchButton;
     private WTextField inputTownName;
     private WListPanel<Map.Entry<Town, Double>, TownModel> closeTownList;
@@ -40,7 +40,7 @@ public class FindTown extends WPlainPanel implements ComponentListMethodsInterfa
 
     public static FindTown instance;
 
-    public static FindTown getInstance(){
+    public static FindTown getInstance() {
         if (instance == null) instance = new FindTown();
         return instance;
     }
@@ -124,15 +124,19 @@ public class FindTown extends WPlainPanel implements ComponentListMethodsInterfa
         if (this.inputTownName.getText().length() < 1) {
             if (MainMod.getTownCloseTownsList() != null) {
                 List<Map.Entry<Town, Double>> closeTownsEntryList = MainMod.getTownCloseTownsList();
-                ArrayList<String> blackListedTowns = Storage.getBlackListedTowns();
+                ArrayList<Town> blackedTowns = Storage.getInstance().getBlackedTowns();
 
                 BiConsumer<Map.Entry<Town, Double>, TownModel> listConfigurator = (Map.Entry<Town, Double> entryTown, TownModel townModel) -> {
                     townModel.setTown(entryTown.getKey(), 0);
 
                     townModel.setNearValue(String.valueOf(Math.round(entryTown.getValue())));
-                    if (blackListedTowns != null && blackListedTowns.size() > 0) {
-                        if (blackListedTowns.contains(entryTown.getKey().getName()))
-                            townModel.disableButton();
+                    if (blackedTowns != null && blackedTowns.size() > 0) {
+                        for (Town blackedTown : blackedTowns) {
+                            if (blackedTown.getName().equals(entryTown.getKey().getName())) {
+                                townModel.disableButton();
+                                break;
+                            }
+                        }
                     }
                 };
                 closeTownList = new WListPanel<>(closeTownsEntryList, TownModel::new, listConfigurator);
@@ -140,15 +144,37 @@ public class FindTown extends WPlainPanel implements ComponentListMethodsInterfa
                 closeTownList.setHost(this.getHost());
                 closeTownList.layout();
                 closeTownList.setSize(LIST_SIZE_WIDTH, LIST_SIZE_HEIGHT);
-                this.add(closeTownList,LIST_POS_X, LIST_POS_Y, LIST_SIZE_WIDTH, LIST_SIZE_HEIGHT);
+                this.add(closeTownList, LIST_POS_X, LIST_POS_Y, LIST_SIZE_WIDTH, LIST_SIZE_HEIGHT);
 
             }
         } else {
             if (this.searchTowns != null) {
 
                 BiConsumer<Town, TownModel> townModelConfigurator = (Town town, TownModel townModel) -> {
-                    townModel.setTown(town, 1);
-                    townModel.setFlagType(Storage.getBlackListedTowns().contains(town.getName()), Storage.getWhiteListedTowns().contains(town.getName()));
+                  boolean bFlag = false;
+                    for (Town blackedTown : Storage.getInstance().getBlackedTowns()) {
+                        if (blackedTown.getName().equals(town.getName())){
+                            Town cloneTown = new Town(blackedTown.getName(), town.getX(), town.getY(), town.getZ(), town.getIcon());
+                            cloneTown.setFav(blackedTown.getFav());
+                            cloneTown.setDescription(blackedTown.getDescription());
+                            bFlag = true;
+                            townModel.setTown(cloneTown,1);
+                            break;
+                        }
+                    }
+                    boolean wFlag = false;
+                    for (Town whiteTown : Storage.getInstance().getWhiteTowns()){
+                        if (whiteTown.getName().equals(town.getName())){
+                            Town mixedTown = new Town(whiteTown.getName(), town.getX(), town.getY(), town.getZ(), town.getIcon());
+                            mixedTown.setFav(whiteTown.getFav());
+                            mixedTown.setDescription(whiteTown.getDescription());
+                            wFlag = true;
+                            townModel.setTown(mixedTown, 1);
+                            break;
+                        }
+                    }
+                    if (!bFlag && !wFlag)
+                        townModel.setTown(town,1);
                 };
 
                 searchTownList = new WListPanel<>(searchTowns, TownModel::new, townModelConfigurator);
@@ -156,17 +182,17 @@ public class FindTown extends WPlainPanel implements ComponentListMethodsInterfa
                 searchTownList.setHost(this.getHost());
                 searchTownList.setSize(LIST_SIZE_WIDTH, LIST_SIZE_HEIGHT);
                 searchTownList.layout();
-                this.add(searchTownList,LIST_POS_X, LIST_POS_Y, LIST_SIZE_WIDTH, LIST_SIZE_HEIGHT);
+                this.add(searchTownList, LIST_POS_X, LIST_POS_Y, LIST_SIZE_WIDTH, LIST_SIZE_HEIGHT);
             }
         }
 
         if (MainMod.isIsLooking()) {
-         if (MainMod.getLookingStatus() == MainMod.LookingStatus.TRACK_BY_TOWN)
-            this.targetTownName.setText(Text.of(MainMod.getLookingTown().getName() + "  X= " +
-                    MainMod.getLookingTown().getX() + ",  Z= " + MainMod.getLookingTown().getZ()));
-        else if (MainMod.getLookingStatus() == MainMod.LookingStatus.TRACK_BY_COORDINATES)
-             this.targetTownName.setText(Text.of( "Search is By Coordinates X= " +
-                     MainMod.getLookingX() + ",  Z= " + MainMod.getLookingZ()));
+            if (MainMod.getLookingStatus() == MainMod.LookingStatus.TRACK_BY_TOWN)
+                this.targetTownName.setText(Text.of(MainMod.getLookingTown().getName() + "  X= " +
+                        MainMod.getLookingTown().getX() + ",  Z= " + MainMod.getLookingTown().getZ()));
+            else if (MainMod.getLookingStatus() == MainMod.LookingStatus.TRACK_BY_COORDINATES)
+                this.targetTownName.setText(Text.of("Search is By Coordinates X= " +
+                        MainMod.getLookingX() + ",  Z= " + MainMod.getLookingZ()));
         }
     }
 
@@ -174,11 +200,13 @@ public class FindTown extends WPlainPanel implements ComponentListMethodsInterfa
         this.add(inputTownName, 4, 4, 180, 30);
         this.add(inputX, 210, 4, 60, 15);
         this.add(inputZ, 270, 4, 60, 15);
-        this.add(searchButton, 335, 4, 26, 15);
+        this.add(searchButton, 335, 4, 24, 15);
         this.add(targetTownName, 5, 28, 95, 10);
-
     }
-    public void cleanInput(){ inputTownName.setText("");}
+
+    public void cleanInput() {
+        inputTownName.setText("");
+    }
 
 
 }

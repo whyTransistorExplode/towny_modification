@@ -5,29 +5,36 @@ import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import net.fabricmc.towny_helper.MainMod;
-import net.fabricmc.towny_helper.superiors.ComponentListMethodsInterface;
+import net.fabricmc.towny_helper.gui.manager.ScreenManager;
+import net.fabricmc.towny_helper.superiors.ModelMethod;
 import net.fabricmc.towny_helper.utils.Storage;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
-public class ModGui extends LightweightGuiDescription implements ComponentListMethodsInterface {
+public class ModGui extends LightweightGuiDescription implements ModelMethod {
     WGridPanel root;
     WLabel status;
     WButton serverGaiaButton;
     WButton serverTerraButton;
     WButton disableLooking;
 
+    WButton switchLocalStorage;
+
     private static ModGui instance = null;
 
     public static ModGui getInstance(){
         if (instance == null) instance = new ModGui();
+        instance.refresh();
+
         return  instance;
     }
 
-    private ModGui() {
-initializeVariables();
-setEvents();
-registerWidgets();
-
+    private ModGui() {refresh();}
+    @Override
+    public void refresh(){
+        initializeVariables();
+        setEvents();
+        registerWidgets();
     }
 
     @Override
@@ -47,16 +54,21 @@ registerWidgets();
 //        root.setSize(120, 150);
 
         disableLooking = new WButton(Text.of("stop compass"));
-        setRootPanel(root);
         if (!MainMod.isIsLooking()) disableLooking.setEnabled(false);
+
+        switchLocalStorage = new WButton(Text.of(" to local storage..."));
     }
 
     @Override
     public void registerWidgets() {
-        root.add(serverGaiaButton, 0, 0, 6, 2);
-        root.add(serverTerraButton, 0, 2, 6, 2);
-        root.add(disableLooking,0,4,6,2);
-        root.add(status, 0,6,8,3);
+        setRootPanel(root);
+
+
+        root.add(serverGaiaButton, 1, 0, 6, 1);
+        root.add(serverTerraButton, 1, 2, 6, 1);
+        root.add(switchLocalStorage, 1, 4, 6, 1);
+        root.add(disableLooking,1,6,6,1);
+        root.add(status, 0,8,8,1);
     }
 
     @Override
@@ -82,18 +94,17 @@ registerWidgets();
             serverGaiaButton.setEnabled(true);
             status.setText(Text.of("status: server(TERRA)"));
         });
+        switchLocalStorage.setOnClick(()->{
+            MinecraftClient.getInstance().setScreen(new ScreenManager(StorageGUI.getInstance()));
+        });
     }
 
-    @Override
-    public void refreshList() {
-
-    }
 
     private void reloadFilesInThread(){
         if (MainMod.getServerName().length()> 0) {
             new Thread(() -> {
-                Storage storage = new Storage();
-                storage.reloadBlackAndWhiteListTowns(MainMod.getServerName());
+                Storage storage = Storage.getInstance();
+                storage.reloadBlackAndWhiteTowns(MainMod.getServerName());
                 storage.reloadFavPlayer(MainMod.getServerName());
             }).start();
         }

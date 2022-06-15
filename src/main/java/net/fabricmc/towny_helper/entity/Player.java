@@ -7,8 +7,17 @@ public class Player {
     private String name;
     private int health;
     private String world;
+    private Boolean Fav;
 
     public Player() {
+    }
+
+    public Boolean getFav() {
+        return Fav;
+    }
+
+    public void setFav(Boolean fav) {
+        Fav = fav;
     }
 
     public Player(int x, int y, String name, String world) {

@@ -7,6 +7,5 @@ import net.fabricmc.towny_helper.gui.annotation.runner.AnnotationRunner;
 public class ScreenManager extends CottonClientScreen {
     public ScreenManager(GuiDescription description) {
         super(description);
-        AnnotationRunner.runUpdateGUIAnnotation();
     }
 }

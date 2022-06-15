@@ -35,7 +35,7 @@ public class FavouritePlayers extends WPlainPanel implements ComponentListMethod
 
     public void refreshList(){
 
-        if (Storage.getFavouritePlayersList() == null || MainMod.getPlayers() ==null) return;
+        if (Storage.getInstance().getFavouritePlayersList() == null || MainMod.getPlayers() ==null) return;
      BiConsumer<String, PlayerModel> favPlayerConfigurator = (playerName, model)->{
          for (Player player : MainMod.getPlayers()) {
              if (player.getName().equals(playerName)){
@@ -45,7 +45,7 @@ public class FavouritePlayers extends WPlainPanel implements ComponentListMethod
          }
          model.notOnline(playerName);
      };
-        listPlayers = new WListPanel<>(Storage.getFavouritePlayersList(),PlayerModel::new,favPlayerConfigurator);
+        listPlayers = new WListPanel<>(Storage.getInstance().getFavouritePlayersList(),PlayerModel::new,favPlayerConfigurator);
         listPlayers.layout();
         listPlayers.setListItemHeight(30);
     }

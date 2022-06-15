@@ -6,11 +6,9 @@ import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import net.fabricmc.towny_helper.MainMod;
 import net.fabricmc.towny_helper.entity.Town;
 import net.fabricmc.towny_helper.gui.annotation.GUIUpdate;
-import net.fabricmc.towny_helper.gui.model.FavouritedTownModel;
 import net.fabricmc.towny_helper.gui.model.TownModel;
 import net.fabricmc.towny_helper.superiors.ComponentListMethodsInterface;
 import net.fabricmc.towny_helper.utils.Storage;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
 import java.util.function.BiConsumer;
@@ -18,7 +16,7 @@ import java.util.function.BiConsumer;
 @GUIUpdate
 public class FavouriteTowns extends WPlainPanel implements ComponentListMethodsInterface {
     private WLabel infoFavTown;
-    public static WListPanel<String, TownModel> whiteList;
+    public static WListPanel<Town, TownModel> whiteList;
 
     private static FavouriteTowns instance = null;
 
@@ -54,30 +52,30 @@ public class FavouriteTowns extends WPlainPanel implements ComponentListMethodsI
 
     @Override
     public void refreshList() {
-        if (MainMod.getTowns() != null && Storage.getWhiteListedTowns() != null){
+        if (MainMod.getTowns() != null && Storage.getInstance().getWhiteTowns() != null){
 
-            BiConsumer<String, TownModel> whiteListedTownsConfigurator =
+            BiConsumer<Town, TownModel> whiteListedTownsConfigurator =
 
-                    (String townName, TownModel favouriteTownModel) ->{
+                    (Town storedTown, TownModel favouriteTownModel) ->{
                         boolean flag = false;
                         for (Town town : MainMod.getTowns()) {
-                            if (townName.equals(town.getName())){
+                            if (storedTown.getName().equals(town.getName())){
                                 flag = true;
                                 favouriteTownModel.setTown(town, 3);
                                 break;
                             }
                         }
                         if (!flag){
-                            favouriteTownModel.setTown(new Town(townName + " - dead town",0 , 0, 0, ""), 3);
+                            favouriteTownModel.setTown(storedTown, 3,1);
                         }
 
                     };
             this.children.clear();
-            whiteList = new WListPanel<String, TownModel>(Storage.getWhiteListedTowns(),TownModel::new,whiteListedTownsConfigurator);
+            whiteList = new WListPanel<>(Storage.getInstance().getWhiteTowns(), TownModel::new, whiteListedTownsConfigurator);
             whiteList.setListItemHeight(30);
             whiteList.layout();
             this.add(whiteList,0,25,360,140);
-            infoFavTown.setText(Text.of("all liked towns: " + Storage.getWhiteListedTowns().size()));
+            infoFavTown.setText(Text.of("all liked towns: " + Storage.getInstance().getWhiteTowns().size()));
         }
     }
 }

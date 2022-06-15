@@ -46,9 +46,14 @@ public class AllPlayers extends WPlainPanel implements ComponentListMethodsInter
             stats.setText(new LiteralText("Online: " + MainMod.getPlayers().size() + " players").setStyle(Style.EMPTY.withBold(true).withColor(0x0009f0)));
 
             BiConsumer<Player, PlayerModel> playerModelConfigurator = (Player player, PlayerModel playerModel) ->{
-                for (String favPl : Storage.getFavouritePlayersList()) {
-                    if (favPl.equals(player.getName())){ playerModel.setFav(true); break;}
+                for (String favPl : Storage.getInstance().getFavouritePlayersList()) {
+                    if (favPl.equals(player.getName()))
+                    {
+                    player.setFav(true);
+                        break;
+                    }
                 }
+
                 playerModel.setPlayer(player);
             };
             this.remove(playerWList);
@@ -73,12 +78,10 @@ public class AllPlayers extends WPlainPanel implements ComponentListMethodsInter
 
 //                MinecraftClient.getInstance().setScreen(new ScreenManager(new PlayersGUI()));
         });
-
         searchNameInput.setChangedListener(inputName ->{
             if (MainMod.getPlayers() !=null) {
                 if (inputName.length() < 1) searchedPlayers =null;
                 else searchedPlayers = Service.searchPlayersByName(MainMod.getPlayers(), inputName);
-
                 refreshList();
             }
         });

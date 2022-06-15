@@ -1,6 +1,7 @@
 package net.fabricmc.towny_helper.gui.model;
 
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
+import io.github.cottonmc.cotton.gui.client.LibGui;
 import io.github.cottonmc.cotton.gui.widget.TooltipBuilder;
 import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
@@ -8,18 +9,12 @@ import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import net.fabricmc.towny_helper.MainMod;
 import net.fabricmc.towny_helper.entity.Player;
-import net.fabricmc.towny_helper.entity.Town;
-import net.fabricmc.towny_helper.service.Service;
 import net.fabricmc.towny_helper.utils.Storage;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static net.fabricmc.towny_helper.service.Service.updateTracker;
 
@@ -31,7 +26,7 @@ public class PlayerModel extends WPlainPanel {
     private WButton findButton;
     private WButton favButton;
     private Formatting color = Formatting.BLACK;
-    private boolean isFav;
+    private final Formatting blackModeColor = Formatting.WHITE;
 
     public PlayerModel(){
         initializeVariables();
@@ -43,49 +38,41 @@ public class PlayerModel extends WPlainPanel {
         findButton.setEnabled(false);
     }
 
-    public void setFav(boolean fav) {
-        isFav = fav;
-        if (fav)
-            favButton.setIcon(new TextureIcon(new Identifier("towny_helper:broken_heart.png")));
-    }
 
     private void refresh(){
         if (player!=null) {
             String s = "";
             if (!player.getWorld().equals("world"))
                 s = " -> Hidden";
-            for (String favList : Storage.getFavouritePlayersList()) {
+            for (String favList : Storage.getInstance().getFavouritePlayersList()) {
                 if (player.getName().equals(favList)) {
                     color = Formatting.GOLD;
                     break;
                 }
             }
-
-            name.setText(new LiteralText(player.getName() + s).setStyle(Style.EMPTY.withExclusiveFormatting(color)));
-
+            if (!LibGui.isDarkMode())
+                name.setText(new LiteralText(player.getName() + s).setStyle(Style.EMPTY.withExclusiveFormatting(color)));
+            else
+                name.setText(new LiteralText(player.getName() + s).setStyle(Style.EMPTY.withExclusiveFormatting(blackModeColor)));
             position.setText(Text.of(player.getX() + " " + player.getY() + " " + player.getZ()));
+            if (player.getFav()!= null && player.getFav())
+                favButton.setIcon(new TextureIcon(new Identifier("towny_helper:broken_heart.png")));
         }
     }
 
     private void setEvents(){
-        findButton.setOnClick(new Runnable() {
-            @Override
-            public void run() {
-                if (player != null) {
-                    updateTracker(player);
-                    MainMod.isDynamicTrackerFirst = true;
-                    MainMod.dynamicTracker = true;
-                }
+        findButton.setOnClick(() -> {
+            if (player != null) {
+                updateTracker(player);
+                MainMod.isDynamicTrackerFirst = true;
+                MainMod.dynamicTracker = true;
             }
         });
-        favButton.setOnClick(new Runnable() {
-            @Override
-            public void run() {
-                Storage storage = new Storage();
-                if (isFav) storage.removeFavPlayer(player.getName());
-                else
-                storage.addFavPlayer(player.getName());
-            }
+        favButton.setOnClick(() -> {
+            if (player.getFav() != null && player.getFav())
+                Storage.getInstance().removeFavPlayer(player.getName());
+            else
+                Storage.getInstance().addFavPlayer(player.getName());
         });
     }
 
@@ -104,6 +91,7 @@ public class PlayerModel extends WPlainPanel {
         position = new WLabel("");
         name = new WLabel("not Found");
         name.setColor(0x011010);
+
     }
 
     public void registerWidgets(){

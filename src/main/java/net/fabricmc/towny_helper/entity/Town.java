@@ -3,6 +3,8 @@ package net.fabricmc.towny_helper.entity;
 public class Town {
     private String name;
     private String icon;
+    private String description;
+    private Boolean isFav;
     private int x;
     private int y;
     private int z;
@@ -53,5 +55,21 @@ public class Town {
 
     public void setZ(int z) {
         this.z = z;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getFav() {
+        return isFav;
+    }
+
+    public void setFav(Boolean fav) {
+        isFav = fav;
     }
 }

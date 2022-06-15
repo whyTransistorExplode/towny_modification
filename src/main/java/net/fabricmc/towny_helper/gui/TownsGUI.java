@@ -3,6 +3,7 @@ package net.fabricmc.towny_helper.gui;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WTabPanel;
 import io.github.cottonmc.cotton.gui.widget.icon.ItemIcon;
+import net.fabricmc.towny_helper.entity.Town;
 import net.fabricmc.towny_helper.gui.component.AllTowns;
 import net.fabricmc.towny_helper.gui.component.BlackedTowns;
 import net.fabricmc.towny_helper.gui.component.FavouriteTowns;
@@ -22,6 +23,7 @@ public class TownsGUI extends LightweightGuiDescription {
     }
 
     private TownsGUI() {
+
       refreshGUI();
     }
     public void refreshGUI(){

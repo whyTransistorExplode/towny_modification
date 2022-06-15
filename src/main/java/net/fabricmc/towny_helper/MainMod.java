@@ -41,6 +41,22 @@ public class MainMod {
     public static long lastMillisTime;
     public static  long leftMillis;
 
+    /**
+     * data = towns
+     * if data is retrieved from net onlineData = true
+     * if data is not retrieved or not even loaded then onlineData = null
+     * if data is retrieved but from local storage onlineData = false
+     */
+    public static Boolean OnlineData;
+
+    public static Boolean getOnlineData() {
+        return OnlineData;
+    }
+
+    public static void setOnlineData(Boolean onlineData) {
+        OnlineData = onlineData;
+    }
+
     public static int getDistance() {
         return distance;
     }
