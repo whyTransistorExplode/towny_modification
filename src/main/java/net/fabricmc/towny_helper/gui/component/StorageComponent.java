@@ -24,7 +24,7 @@ public class StorageComponent extends WPlainPanel implements ComponentListMethod
 
     public WButton saveCurrentDataButton;
 
-    public StorageComponent(){
+    public StorageComponent() {
         initializeVariables();
         registerWidgets();
         setEvents();
@@ -33,8 +33,8 @@ public class StorageComponent extends WPlainPanel implements ComponentListMethod
 
     @Override
     public void refreshList() {
-        ApiPayload content = Storage.getInstance().getTownsDataInfosLocal();
-        if (content.isSuccess()){
+        ApiPayload<ArrayList<InfoTown>> content = Storage.getInstance().getTownsDataInfosLocal();
+        if (content.isSuccess()) {
             ArrayList<InfoTown> infoTowns = content.getContent(); // (ArrayList<InfoTown>) Arrays.asList((InfoTown[]) content.getContent());
 
             BiConsumer<InfoTown, StorageModel> storageModelConfigurator = (infoTown, storageModel) -> storageModel.SetState(infoTown);
@@ -44,14 +44,16 @@ public class StorageComponent extends WPlainPanel implements ComponentListMethod
             infoList.layout();
             infoList.addPainters();
             infoLabel.setText(Text.of("saved: " + infoTowns.size()));
-            this.add(infoList,5, 30, 370, 140);
+            this.add(infoList, 5, 30, 370, 140);
         }
     }
-public void update(){
-    if (MainMod.getOnlineData() != null && !MainMod.getOnlineData())
-        saveCurrentDataButton.setEnabled(false);
-    else saveCurrentDataButton.setEnabled(true);
-}
+
+    public void update() {
+        if (MainMod.getOnlineData() != null && !MainMod.getOnlineData())
+            saveCurrentDataButton.setEnabled(false);
+        else saveCurrentDataButton.setEnabled(true);
+    }
+
     @Override
     public void initializeVariables() {
         infoLabel = new WLabel("");
@@ -61,10 +63,10 @@ public void update(){
 
     @Override
     public void registerWidgets() {
-        this.add(infoLabel, 5,5, 150, 40);
+        this.add(infoLabel, 5, 5, 150, 40);
         this.add(reloadButton, 155, 3, 100, 40);
 
-            this.add(saveCurrentDataButton, 257, 3, 70, 40);
+        this.add(saveCurrentDataButton, 257, 3, 70, 40);
     }
 
     @Override
@@ -73,7 +75,7 @@ public void update(){
             Storage.getInstance().loadTownsDataInfos();
             refreshList();
         });
-            this.saveCurrentDataButton.setOnClick(() -> {
+        this.saveCurrentDataButton.setOnClick(() -> {
             Storage.getInstance().saveOnlineData();
             Storage.getInstance().loadTownsDataInfos();
             refreshList();

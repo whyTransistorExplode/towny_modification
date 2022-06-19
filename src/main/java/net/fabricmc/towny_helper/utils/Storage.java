@@ -44,13 +44,13 @@ public class Storage {
     private FileWriter fileWriter;
 
 
-
     private static final Storage instance = new Storage();
 
-    public static Storage getInstance(){
+    public static Storage getInstance() {
         return instance;
     }
-    private Storage(){
+
+    private Storage() {
 
     }
 
@@ -59,11 +59,12 @@ public class Storage {
         try {
             blackListedTowns = getArrayStringData(BASE_PATH + serverName + BLACK_LISTED_TOWNS_SUFFIX);
         } catch (FileNotFoundException e) {
-            createFolderAndFiles(filePathCombiner(serverName,BLACK_LISTED_TOWNS_SUFFIX));
+            createFolderAndFiles(filePathCombiner(serverName, BLACK_LISTED_TOWNS_SUFFIX));
             blackListedTowns = new ArrayList<>();
         }
     }
-    private void setBlackListedTownsFromFile(String serverName){
+
+    private void setBlackListedTownsFromFile(String serverName) {
         try {
             blackedTowns = new ArrayList<Town>(Arrays.asList(getTownsAsObject(BASE_PATH + serverName + BLACKED_TOWNS_SUFFIX)));
         } catch (FileNotFoundException e) {
@@ -73,8 +74,7 @@ public class Storage {
     }
 
 
-
-    private void setWhiteListedTownsFromFile(String serverName){
+    private void setWhiteListedTownsFromFile(String serverName) {
         try {
             whitedTowns = new ArrayList<Town>(Arrays.asList(getTownsAsObject(BASE_PATH + serverName + WHITE_TOWNS_SUFFIX)));
         } catch (FileNotFoundException e) {
@@ -82,12 +82,13 @@ public class Storage {
             whitedTowns = new ArrayList<>();
         }
     }
+
     @Deprecated
     private void getWhitelistedTownsFromFile(String serverName) {
         try {
             whiteListedTowns = getArrayStringData(BASE_PATH + serverName + WHITE_LISTED_TOWNS_SUFFIX);
         } catch (FileNotFoundException e) {
-            createFolderAndFiles(filePathCombiner(serverName,WHITE_LISTED_TOWNS_SUFFIX));
+            createFolderAndFiles(filePathCombiner(serverName, WHITE_LISTED_TOWNS_SUFFIX));
             whiteListedTowns = new ArrayList<>();
         }
     }
@@ -101,11 +102,12 @@ public class Storage {
             favouritePlayers = getArrayStringData(BASE_PATH + serverName + FAVOURITE_PLAYERS_SUFFIX);
 
         } catch (FileNotFoundException e) {
-            createFolderAndFiles(filePathCombiner(serverName,FAVOURITE_PLAYERS_SUFFIX));
+            createFolderAndFiles(filePathCombiner(serverName, FAVOURITE_PLAYERS_SUFFIX));
             favouritePlayers = new ArrayList<>();
         }
     }
-@Deprecated
+
+    @Deprecated
     private ArrayList<String> getArrayStringData(String path) throws FileNotFoundException {
 
         File file = new File(path);
@@ -119,16 +121,17 @@ public class Storage {
         return towns;
     }
 
-    private String getStringData(String path) throws FileNotFoundException{
+    private String getStringData(String path) throws FileNotFoundException {
         File file = new File(path);
         StringBuilder stringBuilder = new StringBuilder();
         Scanner scanner = new Scanner(file);
-        while (scanner.hasNext()){
+        while (scanner.hasNext()) {
             stringBuilder.append(scanner.nextLine());
         }
         return stringBuilder.toString();
     }
-    private boolean wipeDataFromFile(String path){
+
+    private boolean wipeDataFromFile(String path) {
         try {
             FileWriter fileWriter = new FileWriter(path);
             fileWriter.write("");
@@ -145,21 +148,22 @@ public class Storage {
         try {
             String hold = getStringData(path);
             return gson.fromJson(hold, Town[].class);
-        }catch (JsonSyntaxException e){
+        } catch (JsonSyntaxException e) {
             wipeDataFromFile(path);
             return new Town[10];
         }
     }
 
-@Deprecated
+    @Deprecated
     public void reloadBlackAndWhiteListTowns(String serverName) {
         if (serverName != null) {
             getWhitelistedTownsFromFile(MainMod.getServerName());
             getBlacklistedTownsFromFile(MainMod.getServerName());
-        }else System.err.println("Server name is not set");
+        } else System.err.println("Server name is not set");
     }
-    public void reloadBlackAndWhiteTowns(String serverName){
-        if (serverName != null){
+
+    public void reloadBlackAndWhiteTowns(String serverName) {
+        if (serverName != null) {
             setWhiteListedTownsFromFile(serverName);
             setBlackListedTownsFromFile(serverName);
         } else System.err.println("server name is not present");
@@ -169,7 +173,8 @@ public class Storage {
     public void addTownBlackListed(String e) {
         addAndSaveBlackListedTown(e);
     }
-@Deprecated
+
+    @Deprecated
     public void addTownWhiteListed(String e) {
         addAndSaveWhiteListedTown(e);
     }
@@ -180,16 +185,16 @@ public class Storage {
         if (i != -1) {
             blackListedTowns.remove(i);
             try {
-                listWriteToFile(blackListedTowns, filePathCombiner(MainMod.getServerName(),BLACK_LISTED_TOWNS_SUFFIX));
+                listWriteToFile(blackListedTowns, filePathCombiner(MainMod.getServerName(), BLACK_LISTED_TOWNS_SUFFIX));
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         }
     }
 
-    public void removeTownBlacked(Town town){
+    public void removeTownBlacked(Town town) {
         for (int i = 0; i < blackedTowns.size(); i++) {
-            if (town.getName().equals(blackedTowns.get(i).getName())){
+            if (town.getName().equals(blackedTowns.get(i).getName())) {
                 blackedTowns.remove(i);
                 Storage.getInstance().blackedTownsStateChange = true;
 //                try {
@@ -203,9 +208,8 @@ public class Storage {
     }
 
 
-
-    public String filePathCombiner(String serverName,String suffix){
-    return BASE_PATH + serverName+ suffix;
+    public String filePathCombiner(String serverName, String suffix) {
+        return BASE_PATH + serverName + suffix;
     }
 
     @Deprecated
@@ -214,17 +218,17 @@ public class Storage {
         if (i != -1) {
             whiteListedTowns.remove(i);
             try {
-                listWriteToFile(whiteListedTowns, filePathCombiner(MainMod.getServerName(),WHITE_LISTED_TOWNS_SUFFIX));
+                listWriteToFile(whiteListedTowns, filePathCombiner(MainMod.getServerName(), WHITE_LISTED_TOWNS_SUFFIX));
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         }
     }
 
-    public void removeTownWhited(Town town){
+    public void removeTownWhited(Town town) {
 
         for (int i = 0; i < whitedTowns.size(); i++) {
-            if (town.getName().equals(whitedTowns.get(i).getName())){
+            if (town.getName().equals(whitedTowns.get(i).getName())) {
                 whitedTowns.remove(i);
                 Storage.getInstance().whiteTownStateChange = true;
 //                try {
@@ -244,7 +248,7 @@ public class Storage {
         }
         favouritePlayers.add(e);
         try {
-            listWriteToFile(favouritePlayers, filePathCombiner(MainMod.getServerName(),FAVOURITE_PLAYERS_SUFFIX));
+            listWriteToFile(favouritePlayers, filePathCombiner(MainMod.getServerName(), FAVOURITE_PLAYERS_SUFFIX));
         } catch (IOException ioException) {
             createFolderAndFiles(filePathCombiner(MainMod.getServerName(), FAVOURITE_PLAYERS_SUFFIX));
         }
@@ -264,7 +268,7 @@ public class Storage {
         }
     }
 
-@Deprecated
+    @Deprecated
     private void addAndSaveBlackListedTown(String e) {
         if (blackListedTowns == null) {
             getBlacklistedTownsFromFile(MainMod.getServerName());
@@ -275,31 +279,32 @@ public class Storage {
                     if (blackListedTown.equals(e)) return;
                 }
                 blackListedTowns.add(e);
-                listWriteToFile(blackListedTowns, filePathCombiner(MainMod.getServerName(),BLACK_LISTED_TOWNS_SUFFIX));
+                listWriteToFile(blackListedTowns, filePathCombiner(MainMod.getServerName(), BLACK_LISTED_TOWNS_SUFFIX));
             }
         } catch (IOException e1) {
             createFolderAndFiles(filePathCombiner(MainMod.getServerName(), BLACK_LISTED_TOWNS_SUFFIX));
         }
     }
 
-    public boolean addBlackedTown(Town town){
-        if (blackedTowns == null){
+    public boolean addBlackedTown(Town town) {
+        if (blackedTowns == null) {
             setBlackListedTownsFromFile(MainMod.getServerName());
         }
-        if (town != null && town.getName().length() > 0){
-            for (Town blackedTown : blackedTowns){
+        if (town != null && town.getName().length() > 0) {
+            for (Town blackedTown : blackedTowns) {
                 if (blackedTown.getName().equals(town.getName())) return false;
             }
             blackedTowns.add(town);
             try {
-                listWriteToFileGSON(blackedTowns,filePathCombiner(MainMod.getServerName(),BLACKED_TOWNS_SUFFIX));
+                listWriteToFileGSON(blackedTowns, filePathCombiner(MainMod.getServerName(), BLACKED_TOWNS_SUFFIX));
             } catch (IOException e) {
-                createFolderAndFiles(filePathCombiner(MainMod.getServerName(),BLACKED_TOWNS_SUFFIX));
+                createFolderAndFiles(filePathCombiner(MainMod.getServerName(), BLACKED_TOWNS_SUFFIX));
             }
         }
         return true;
     }
-    public boolean addWhiteTown(Town town){
+
+    public boolean addWhiteTown(Town town) {
         if (whitedTowns == null) {
             setWhiteListedTownsFromFile(MainMod.getServerName());
         }
@@ -310,14 +315,15 @@ public class Storage {
                 }
 
                 whitedTowns.add(town);
-                listWriteToFileGSON(whitedTowns, filePathCombiner(MainMod.getServerName(),WHITE_TOWNS_SUFFIX));
+                listWriteToFileGSON(whitedTowns, filePathCombiner(MainMod.getServerName(), WHITE_TOWNS_SUFFIX));
             }
         } catch (IOException e1) {
             createFolderAndFiles(filePathCombiner(MainMod.getServerName(), WHITE_TOWNS_SUFFIX));
         }
         return true;
     }
-@Deprecated
+
+    @Deprecated
     private void addAndSaveWhiteListedTown(String e) {
         if (whiteListedTowns == null) {
             getWhitelistedTownsFromFile(MainMod.getServerName());
@@ -329,7 +335,7 @@ public class Storage {
                 }
 
                 whiteListedTowns.add(e);
-                listWriteToFile(whiteListedTowns, filePathCombiner(MainMod.getServerName(),WHITE_LISTED_TOWNS_SUFFIX));
+                listWriteToFile(whiteListedTowns, filePathCombiner(MainMod.getServerName(), WHITE_LISTED_TOWNS_SUFFIX));
             }
         } catch (IOException e1) {
             createFolderAndFiles(filePathCombiner(MainMod.getServerName(), WHITE_LISTED_TOWNS_SUFFIX));
@@ -354,8 +360,9 @@ public class Storage {
 
     /**
      * main list file writer
+     *
      * @param townsList a list to be written to a specific location
-     * @param path a variable for a specific location
+     * @param path      a variable for a specific location
      * @throws IOException
      */
     private void listWriteToFileGSON(ArrayList<Town> townsList, String path) throws IOException {
@@ -368,37 +375,39 @@ public class Storage {
         fileWriter.write(objectData);
         fileWriter.close();
     }
+
     public void threadListWriteGSON(ArrayList<Town> townsList, String path) throws IOException {
         listWriteToFileGSON(townsList, path);
     }
+
     public void createFolderAndFiles(String path) {
 
         File mkFolder = new File(BASE_PATH);
         if (!mkFolder.mkdir()) System.out.println("failed to create folder!");
 
         new File(DATA_PATH).mkdir();
-            File FILE = new File(path);
+        File FILE = new File(path);
 
-            try {
-                if (FILE.createNewFile()) {
-                    System.out.println("created "+ path + "  file");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            if (FILE.createNewFile()) {
+                System.out.println("created " + path + "  file");
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
     }
 
     // save DATA section
 
-    public ApiPayload saveOnlineData() {
+    public ApiPayload<?> saveOnlineData() {
         if (MainMod.getOnlineData() != null && MainMod.getOnlineData()) {
             String dateFormat = new SimpleDateFormat("yyyy_MM_dd_hhmmss").format(new Date());
             try {
                 listWriteToFileGSON(MainMod.getTowns(), DATA_PATH + dateFormat + ALL_TOWNS_SUFFIX);
                 return ApiPayload.sendSuccessful();
-            }catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -406,19 +415,19 @@ public class Storage {
     }
 
     /**
-     *  method is used to load townsData only to show user how many data are stored in local storage
+     * method is used to load townsData only to show user how many data are stored in local storage
+     *
      * @return returns success and data if the action is successful
      */
-    public ApiPayload loadTownsDataInfos() {
+    public ApiPayload<ArrayList<InfoTown>> loadTownsDataInfos() {
         File file = new File(DATA_PATH);
         File[] files = file.listFiles();
         dataInfo = new ArrayList<>();
         if (files != null) {
             for (File loopFile : files) {
 
-                if (loopFile.isFile() && loopFile.getName().endsWith(ALL_TOWNS_SUFFIX))
-                {
-                    dataInfo.add(new InfoTown(loopFile.getName().substring(0, loopFile.getName().length() - ALL_TOWNS_SUFFIX.length()), (int) (loopFile.length()/1024)));
+                if (loopFile.isFile() && loopFile.getName().endsWith(ALL_TOWNS_SUFFIX)) {
+                    dataInfo.add(new InfoTown(loopFile.getName().substring(0, loopFile.getName().length() - ALL_TOWNS_SUFFIX.length()), (int) (loopFile.length() / 1024)));
                 }
             }
 
@@ -426,18 +435,20 @@ public class Storage {
         }
         return ApiPayload.sendFail();
     }
-    public ApiPayload getTownsDataInfosLocal(){
+
+    public ApiPayload<ArrayList<InfoTown>> getTownsDataInfosLocal() {
         if (this.dataInfo == null)
-           return loadTownsDataInfos();
+            return loadTownsDataInfos();
         return ApiPayload.sendSuccessWithObject(dataInfo);
     }
 
     /**
-     *  the method is used to load local stored data of Towns into Main Towns and sets the MainMod.online= true
+     * the method is used to load local stored data of Towns into Main Towns and sets the MainMod.online= true
+     *
      * @param filePath given path location of the file to be loaded
      * @return returns success if the action is successful
      */
-    private ApiPayload loadTownsDataIntoMain(String filePath){
+    private ApiPayload loadTownsDataIntoMain(String filePath) {
         try {
             MainMod.setTowns(new ArrayList<Town>(Arrays.asList(getTownsAsObject(filePath))));
             MainMod.setOnlineData(false); // local data
@@ -446,12 +457,13 @@ public class Storage {
             return ApiPayload.sendFail();
         }
     }
-    public ApiPayload loadLocalDataToMain(String infoName){
-       return loadTownsDataIntoMain(DATA_PATH + infoName + ALL_TOWNS_SUFFIX);
+
+    public ApiPayload loadLocalDataToMain(String infoName) {
+        return loadTownsDataIntoMain(DATA_PATH + infoName + ALL_TOWNS_SUFFIX);
     }
 
 
-    public void removeData(String infoName){
+    public void removeData(String infoName) {
         File file = new File(DATA_PATH + infoName + ALL_TOWNS_SUFFIX);
         if (file.exists() && file.isFile())
             file.delete();
@@ -460,8 +472,8 @@ public class Storage {
     // end of DATA section
 
 
-    public ArrayList<Town> getBlackedTowns(){
-        if ( blackedTowns == null) blackedTowns = new ArrayList<>();
+    public ArrayList<Town> getBlackedTowns() {
+        if (blackedTowns == null) blackedTowns = new ArrayList<>();
         return blackedTowns;
     }
 

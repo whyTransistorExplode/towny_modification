@@ -26,14 +26,14 @@ public class HttpsClient{
         return getDataFromWeb(https_url);
     }
 
-    public ApiPayload retrieveTowns(String serverName){
+    public ApiPayload<String> retrieveTowns(String serverName){
         String https_url = "https://www.herobrine.org/map/"+serverName+"/standalone/dynmap_world.json";
         return getDataFromWeb(https_url);
     }
 
 
 
-    public ApiPayload getDataFromWeb(String https_url){
+    public ApiPayload<String> getDataFromWeb(String https_url){
 //        String https_url = "https://www.google.com";
         URL url;
         try {

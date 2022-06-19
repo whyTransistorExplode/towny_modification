@@ -48,7 +48,7 @@ public class Service {
 
     public void setTowns(String apiData) {
         if (MainMod.getServerName().length() < 1) return;
-        ApiPayload response = HttpsClient.getInstance().retrieveTowns(MainMod.getServerName());
+        ApiPayload<String> response = HttpsClient.getInstance().retrieveTowns(MainMod.getServerName());
         if (response.isSuccess()) {
             String townsData = response.getContent();
             ArrayList<Town> towns = collectTownsNewMethod(townsData);

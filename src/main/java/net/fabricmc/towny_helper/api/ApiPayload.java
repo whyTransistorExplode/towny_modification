@@ -1,22 +1,22 @@
 package net.fabricmc.towny_helper.api;
 
-public class ApiPayload {
+public class ApiPayload<T> {
     private boolean success;
-    private Object content;
+    private T content;
     private String msg;
 
-    public ApiPayload(boolean success, Object content) {
+    public ApiPayload(boolean success, T content) {
         this.success = success;
         this.content = content;
     }
 
-    public ApiPayload(boolean success, Object content, String msg) {
+    public ApiPayload(boolean success, T content, String msg) {
         this.success = success;
         this.content = content;
         this.msg = msg;
     }
 
-    public ApiPayload(Object content, String msg) {
+    public ApiPayload(T content, String msg) {
         this.content = content;
         this.msg = msg;
     }
@@ -33,19 +33,11 @@ public class ApiPayload {
         this.success = success;
     }
 
-    public <Type> Type getContent() {
-        String str = content.getClass().getName();
-        Class<?> classType = null;
-        try {
-            classType = Class.forName(str);
-            return (Type)classType.cast(content);
-
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    public T getContent() {
+        return content;
     }
 
-    public void setContent(Object content) {
+    public void setContent(T content) {
         this.content = content;
     }
 
@@ -57,14 +49,16 @@ public class ApiPayload {
         this.msg = msg;
     }
 
-    public static ApiPayload sendSuccessful(){
-        return new ApiPayload(true);
-    }
-    public static ApiPayload sendSuccessWithObject(Object object){
-        return  new ApiPayload(true, object);
+    public static <T> ApiPayload<T> sendSuccessful() {
+        return new ApiPayload<T>(true);
     }
 
-    public static ApiPayload sendFail(){
-        return new ApiPayload(false);
+    public static <T> ApiPayload<T> sendSuccessWithObject(T object) {
+        return new ApiPayload<>(true, object);
+    }
+
+    public static <T> ApiPayload<T> sendFail() {
+        return new ApiPayload<T>(false);
     }
 }
+

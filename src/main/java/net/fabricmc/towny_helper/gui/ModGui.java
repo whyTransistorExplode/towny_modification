@@ -1,5 +1,6 @@
 package net.fabricmc.towny_helper.gui;
 
+import io.github.cottonmc.cotton.gui.client.LibGui;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
@@ -23,6 +24,7 @@ public class ModGui extends LightweightGuiDescription implements ModelMethod {
     private static ModGui instance = null;
 
     public static ModGui getInstance(){
+
         if (instance == null) instance = new ModGui();
         instance.refresh();
 

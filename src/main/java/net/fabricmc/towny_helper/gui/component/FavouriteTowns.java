@@ -27,8 +27,6 @@ public class FavouriteTowns extends WPlainPanel implements ComponentListMethodsI
 
     private FavouriteTowns() {
 
-//        text = new WLabel("");
-//        this.add(text,0,0);
         initializeVariables();
         registerWidgets();
         setEvents();
