@@ -18,6 +18,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public class AllTowns extends WPlainPanel implements ComponentListMethodsInterface {
     WButton reloadTowns;
@@ -53,7 +54,7 @@ public class AllTowns extends WPlainPanel implements ComponentListMethodsInterfa
                 for (Town blackedTown : Storage.getInstance().getBlackedTowns()) {
                     if (blackedTown.getName().equals(town.getName())) {
                         Town cloneTown = new Town(blackedTown.getName(), town.getX(), town.getY(), town.getZ(), town.getIcon());
-                        cloneTown.setFav(blackedTown.getFav());
+                          cloneTown.setFav(blackedTown.getFav());
                         cloneTown.setDescription(blackedTown.getDescription());
                         bFlag = true;
                         townModel.setTown(cloneTown, 0);
@@ -79,8 +80,9 @@ public class AllTowns extends WPlainPanel implements ComponentListMethodsInterfa
             this.remove(listTownPanel);
             if (searchTowns != null)
                 listTownPanel = new ModifiedWList<>(searchTowns, TownModel::new, townModelConfigurator);
-            else
+            else {
                 listTownPanel = new ModifiedWList<>(MainMod.getTowns(), TownModel::new, townModelConfigurator);
+            }
 
             listTownPanel.layout();
             listTownPanel.setListItemHeight(30);

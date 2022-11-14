@@ -7,6 +7,7 @@ import io.github.cottonmc.cotton.gui.widget.icon.ItemIcon;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import net.fabricmc.towny_helper.MainMod;
 import net.fabricmc.towny_helper.entity.Town;
+import net.fabricmc.towny_helper.gui.TownsGUI;
 import net.fabricmc.towny_helper.gui.component.BlackedTowns;
 import net.fabricmc.towny_helper.gui.component.FavouriteTowns;
 import net.fabricmc.towny_helper.gui.component.FindTown;
@@ -21,7 +22,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class TownModel extends WPlainPanel implements ModelMethod {
     private int[] args;
@@ -55,7 +55,6 @@ public class TownModel extends WPlainPanel implements ModelMethod {
         initializeVariables();
         registerWidgets();
         setEvents();
-        setFlagType();
         refresh();
         this.args = args;
     }
@@ -77,7 +76,7 @@ public class TownModel extends WPlainPanel implements ModelMethod {
 
 
     private void setFlagType() {
-        switch (town.getIcon()){ // neutral towns flag set
+        switch (town.getIcon()) { // neutral towns flag set
             case "blueflag":
                 sprite.setImage(new Identifier("towny_helper", "blue_flag.png"));
                 break;
@@ -100,47 +99,36 @@ public class TownModel extends WPlainPanel implements ModelMethod {
                 sprite.setImage(new Identifier("towny_helper", "black_flag.png"));
             }
         }
-
-
-
-        if (town.getFav() != null){
-        if (favouriteButton != null)
-            favouriteButton.setEnabled(false);
-        if (trashButton != null)
-            trashButton.setEnabled(false);
-        if (spawnButton != null)
-            spawnButton.setEnabled(town.getFav());
-    }
     }
 
 
     @Override
     public void initializeVariables() {
-        if  (LibGui.isDarkMode())
+        if (LibGui.isDarkMode())
             this.textTownName = new WLabel(town.getName());
         else
             this.textTownName = new WLabel(new LiteralText(town.getName()).setStyle(Text.of("").getStyle().withColor(5)));
         this.townCoords = new WLabel(Text.of("X: " + town.getX() + " Y: " + town.getY() + " Z: " + town.getZ()));
 
         switch (mode) {
-            case 0: //allTowns
+            case ALL_TOWNS: //allTowns
                 spawnButton = new WButton(new ItemIcon(new ItemStack(Items.GRASS_BLOCK))).setLabel(Text.of("Spawn"));
                 favouriteButton = new WButton(new TextureIcon(new Identifier("towny_helper", "heart.png")));
                 trashButton = new WButton(new TextureIcon(new Identifier("towny_helper", "trash.png")));
                 sprite = new WSprite(new Identifier("towny_helper", "green_flag.png"));
                 break;
-            case 1: // FindTown, found towns by given input name in search input field
+            case SEARCHED_TOWNS: // FindTown, found towns by given input name in search input field
                 searchButton = new WButton(Text.of("search"));
                 sprite = new WSprite(new Identifier("towny_helper", "green_flag.png"));
                 break;
-            case 2: // BlackListedTowns
+            case BLACKED_TOWNS: // BlackListedTowns
                 // args[0] == 1 means the town is not present online
                 if (args != null && args[0] == 1)
                     textTownName.setText(Text.of(town.getName() + " - not present"));
                 removeTrashStatusButton = new WButton(Text.of("remove"));
                 sprite = new WSprite(new Identifier("towny_helper", "black_flag.png"));
                 break;
-            case 3: // FavouriteTowns
+            case WHITED_TOWNS: // FavouriteTowns
                 if (args != null && args[0] == 1)
                     textTownName.setText(Text.of(town.getName() + " - not present"));
                 sprite = new WSprite(new Identifier("towny_helper", "green_flag.png"));
@@ -155,7 +143,7 @@ public class TownModel extends WPlainPanel implements ModelMethod {
         this.setBackgroundPainter(backgroundPainter);
 
         switch (mode) {
-            case 0: // when in component AllTowns
+            case ALL_TOWNS: // when in component AllTowns
                 this.add(sprite, 0, 0, 40, 30);
                 this.add(textTownName, 50, 5);
                 this.add(townCoords, 50, 15);
@@ -163,19 +151,19 @@ public class TownModel extends WPlainPanel implements ModelMethod {
                 this.add(favouriteButton, 295, 5, 18, 0);
                 this.add(trashButton, 316, 5, 18, 0);
                 break;
-            case 1: // FindTown, found towns by entered input name
+            case SEARCHED_TOWNS: // FindTown, found towns by entered input name
                 this.add(sprite, 0, 0, 40, 30);
                 this.add(textTownName, 50, 5);
                 this.add(townCoords, 50, 15);
                 this.add(searchButton, 290, 5, 50, 0);
                 break;
-            case 2:  // Blacked towns component
+            case BLACKED_TOWNS:  // Blacked towns component
                 this.add(removeTrashStatusButton, 290, 5, 50, 0);
                 this.add(sprite, 0, 0, 40, 30);
                 this.add(textTownName, 50, 5);
                 this.add(townCoords, 50, 15);
                 break;
-            case 3:
+            case WHITED_TOWNS:
                 this.add(sprite, 0, 0, 40, 30);
                 this.add(textTownName, 50, 5);
                 this.add(townCoords, 50, 15);
@@ -194,30 +182,27 @@ public class TownModel extends WPlainPanel implements ModelMethod {
     @Override
     public void setEvents() {
         switch (mode) {
-            case 0:
+            case ALL_TOWNS: // all towns
                 spawnButton.setOnClick(() -> {
                     if (MinecraftClient.getInstance().player != null)
-                        MinecraftClient.getInstance().player.sendChatMessage("/t spawn " + town.getName());
+                        MinecraftClient.getInstance().player.sendChatMessage("/town spawn " + town.getName());
 
                     System.out.println("teleporting!");
                 });
                 favouriteButton.setOnClick(() -> {
                     boolean b = Storage.getInstance().addWhiteTown(this.town);
-                    this.town.setFav(b?true: null);
+                    this.town.setFav(b ? true : null);
+
                     refresh();
-                    if (town.getIcon().equals("blueflag"))
-                        sprite.setImage(new Identifier("towny_helper:blue_liked_flag.png"));
-                    else
-                        sprite.setImage(new Identifier("towny_helper:green_liked_flag.png"));
                 });
                 trashButton.setOnClick(() -> {
                     boolean b = Storage.getInstance().addBlackedTown(town);
-                    this.town.setFav(b?false: null);
+                    this.town.setFav(b ? false : null);
                     refresh();
-                    sprite.setImage(new Identifier("towny_helper:black_flag.png"));
+//                    sprite.setImage(new Identifier("towny_helper:black_flag.png"));
                 });
                 break;
-            case 1: //find town, towns by given input
+            case SEARCHED_TOWNS: //find town, towns by given input
                 searchButton.setOnClick(() -> {
                     ArrayList<Town> towns = (ArrayList<Town>) MainMod.getTowns().clone();
                     towns.remove(town);
@@ -230,17 +215,17 @@ public class TownModel extends WPlainPanel implements ModelMethod {
                     FindTown.getInstance().refreshList();
                 });
                 break;
-            case 2:
+            case BLACKED_TOWNS:
                 removeTrashStatusButton.setOnClick(() -> {
                     Storage.getInstance().removeTownBlacked(this.town);
                     BlackedTowns.getInstance().refreshList();
                 });
 
                 break;
-            case 3:
+            case WHITED_TOWNS:
                 spawnButton.setOnClick(() -> {
                     if (MinecraftClient.getInstance().player != null)
-                        MinecraftClient.getInstance().player.sendChatMessage("/t spawn " + town.getName());
+                        MinecraftClient.getInstance().player.sendChatMessage("/town spawn " + town.getName());
                 });
                 unFavouriteButton.setOnClick(() -> {
                     Storage.getInstance().removeTownWhited(this.town);
@@ -252,12 +237,14 @@ public class TownModel extends WPlainPanel implements ModelMethod {
 
     @Override
     public void refresh() {
+        setFlagType();
         if (town.getFav() != null) {
-            if (favouriteButton !=null)
+            if (favouriteButton != null)
                 favouriteButton.setEnabled(false);
             if (trashButton != null)
                 trashButton.setEnabled(false);
+            if (spawnButton != null)
+                spawnButton.setEnabled(town.getFav());
         }
-        setFlagType();
     }
 }

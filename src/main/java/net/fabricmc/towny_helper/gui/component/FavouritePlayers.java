@@ -9,11 +9,12 @@ import net.fabricmc.towny_helper.gui.annotation.GUIUpdate;
 import net.fabricmc.towny_helper.gui.model.PlayerModel;
 import net.fabricmc.towny_helper.superiors.ComponentListMethodsInterface;
 import net.fabricmc.towny_helper.utils.Storage;
+import net.minecraft.text.Text;
 
 import java.util.function.BiConsumer;
 
 public class FavouritePlayers extends WPlainPanel implements ComponentListMethodsInterface {
-    private WListPanel<String, PlayerModel> listPlayers;
+    private WListPanel<Player, PlayerModel> listPlayers;
     private WLabel wLabel;
 
     public static FavouritePlayers instance = null;
@@ -30,35 +31,49 @@ public class FavouritePlayers extends WPlainPanel implements ComponentListMethod
     }
 
     public void initializeVariables() {
+        wLabel = new WLabel("");
     }
 
 
     public void refreshList(){
 
         if (Storage.getInstance().getFavouritePlayersList() == null || MainMod.getPlayers() ==null) return;
-     BiConsumer<String, PlayerModel> favPlayerConfigurator = (playerName, model)->{
+
+        wLabel.setText(Text.of("you have " + Storage.getInstance().getFavouritePlayersList().size() + " friends online"));
+
+     BiConsumer<Player, PlayerModel> favPlayerConfigurator = (suppliedPlayer, model)->{
          for (Player player : MainMod.getPlayers()) {
-             if (player.getName().equals(playerName)){
-             model.setPlayer(player);
+             if (player.getName().equals(suppliedPlayer.getName())){
+             model.setPlayer(player, true);
              return;
              }
          }
-         model.notOnline(playerName);
+         model.setPlayer(suppliedPlayer, false);
      };
-        listPlayers = new WListPanel<>(Storage.getInstance().getFavouritePlayersList(),PlayerModel::new,favPlayerConfigurator);
-        listPlayers.layout();
+        listPlayers = new WListPanel<>(Storage.getInstance().getFavouritePlayersList(), PlayerModel::new,favPlayerConfigurator);
+        this.add(listPlayers,2,52,360,140);
         listPlayers.setListItemHeight(30);
+        listPlayers.layout();
     }
 
 
     public void registerWidgets() {
-        if (listPlayers != null)
-        this.add(listPlayers,2,5,360,140);
-
+        this.add(wLabel, 2, 5, 100, 50);
     }
 
     @Override
     public void setEvents() {
 
+    }
+
+    @Override
+    public void onFocusGained() {
+        super.onFocusGained();
+    }
+
+    @Override
+    public void onShown() {
+        super.onShown();
+        refreshList();
     }
 }

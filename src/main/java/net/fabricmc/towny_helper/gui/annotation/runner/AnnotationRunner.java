@@ -1,5 +1,6 @@
 package net.fabricmc.towny_helper.gui.annotation.runner;
 
+import net.fabricmc.towny_helper.gui.PlayersGUI;
 import net.fabricmc.towny_helper.gui.component.*;
 
 public class AnnotationRunner {
@@ -17,8 +18,8 @@ public class AnnotationRunner {
         BlackedTowns.getInstance().refreshList();
         FindTown.getInstance().refreshList();
 
-        AllPlayers.getInstance().refreshList();
-        FavouritePlayers.getInstance().refreshList();
-        FindPlayer.getInstance().refreshList();
+        PlayersGUI.getInstance().allPlayers.refreshList();
+        PlayersGUI.getInstance().favouritePlayers.refreshList();
+        PlayersGUI.getInstance().findPlayer.refreshList();
     }
 }

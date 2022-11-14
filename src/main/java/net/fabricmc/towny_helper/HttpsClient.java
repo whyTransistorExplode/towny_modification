@@ -21,7 +21,7 @@ public class HttpsClient{
 
     }
 
-    public ApiPayload retrievePlayers(String serverName){
+    public ApiPayload<String> retrievePlayers(String serverName){
         String https_url = "https://www.herobrine.org/map/"+serverName+"/standalone/dynmap_world.json";
         return getDataFromWeb(https_url);
     }

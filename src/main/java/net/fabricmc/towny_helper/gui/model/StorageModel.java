@@ -7,15 +7,12 @@ import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import net.fabricmc.towny_helper.api.ApiPayload;
 import net.fabricmc.towny_helper.entity.InfoTown;
 import net.fabricmc.towny_helper.gui.StorageGUI;
-import net.fabricmc.towny_helper.gui.component.StorageComponent;
+import net.fabricmc.towny_helper.gui.TownsGUI;
 import net.fabricmc.towny_helper.superiors.ModelMethod;
 import net.fabricmc.towny_helper.utils.Storage;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
-import java.awt.*;
 
 public class StorageModel extends WPlainPanel implements ModelMethod {
     private WLabel infoField;
@@ -42,7 +39,7 @@ public class StorageModel extends WPlainPanel implements ModelMethod {
         this.setBackgroundPainter(backgroundPainter);
     }
 
-    @Override
+
     public void initializeVariables() {
 
         infoField = new WLabel("");
@@ -51,7 +48,7 @@ public class StorageModel extends WPlainPanel implements ModelMethod {
         deleteButton  = new WButton(Text.of("delete"));
     }
 
-    @Override
+
     public void registerWidgets() {
         this.add(infoField, 5, 2, 150, 0);
         this.add(infoFieldSize, 5, 10, 150, 0);
@@ -59,13 +56,14 @@ public class StorageModel extends WPlainPanel implements ModelMethod {
         this.add(deleteButton, 285, 5, 60, 15);
     }
 
-    @Override
+
     public void setEvents() {
         loadButton.setOnClick(() ->{
             if (infoTown != null) {
-                ApiPayload apiPayload = Storage.getInstance().loadLocalDataToMain(infoTown.getName());
+                ApiPayload<?> apiPayload = Storage.getInstance().loadLocalDataToMain(infoTown.getName());
                 if (apiPayload.isSuccess()) {
-                    loadButton.setEnabled(false);
+                    TownsGUI.getInstance().refreshGUI();
+                    StorageGUI.getInstance().setCurrentSelectedModel(this);
                 }
             } else System.out.println("info town is null");
         });
@@ -75,10 +73,14 @@ public class StorageModel extends WPlainPanel implements ModelMethod {
         });
     }
 
-    @Override
+
     public void refresh() {
+        if (StorageGUI.getInstance().currentLoadedModel() == this){
+            loadButton.setEnabled(false);
+        }else{ loadButton.setEnabled(true);}
+
         if (infoTown != null){
-            infoField.setText(new LiteralText("Name -" + infoTown.getName()).setStyle(Style.EMPTY.withColor(0)));
+            infoField.setText(new LiteralText( infoTown.getName()).setStyle(Style.EMPTY.withColor(0)));
             double fileSize = 0;
             String ds;
             if (infoTown.getKbSize() > 1024) {
@@ -87,6 +89,7 @@ public class StorageModel extends WPlainPanel implements ModelMethod {
             }
             else ds = infoTown.getKbSize() + "kb";
             infoFieldSize.setText(Text.of("size: " + ds));
+//            if (loadButton.setEnabled())
         }
     }
 }

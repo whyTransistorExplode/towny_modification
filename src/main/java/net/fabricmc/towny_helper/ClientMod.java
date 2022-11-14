@@ -23,6 +23,8 @@ public class ClientMod implements ClientModInitializer {
     private  static KeyBinding PlayersGui;
     private  static KeyBinding TownsGui;
     private  static KeyBinding modGui;
+    private static KeyBinding safeHome;
+    private static KeyBinding voteButton;
     HudRenderCallback hudRenderCallback;
 
 
@@ -51,12 +53,20 @@ public class ClientMod implements ClientModInitializer {
                         InputUtil.Type.KEYSYM,
                         GLFW.GLFW_KEY_F9,
                         "key.category.opengui"));
+        safeHome = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.townyhelper.safehome",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_F10,
+            "key.category.opengui"));
+        voteButton = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.townyhelper.votebutton",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_K,
+            "key.category.opengui"));
 
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (homeTSpawn.wasPressed()) {
                 if (MinecraftClient.getInstance().player != null)
-                    MinecraftClient.getInstance().player.sendChatMessage("/t spawn");
+                    MinecraftClient.getInstance().player.sendChatMessage("/tc / town spawn");
 
             }
             while (PlayersGui.wasPressed()){
@@ -67,6 +77,14 @@ public class ClientMod implements ClientModInitializer {
             }
             while(modGui.wasPressed()){
                 MinecraftClient.getInstance().setScreen(new ScreenManager(ModGui.getInstance()));
+            }
+            while(safeHome.wasPressed()){
+                if (MinecraftClient.getInstance().player != null)
+                    MinecraftClient.getInstance().player.sendChatMessage("/tc /home");
+            }
+            while(voteButton.wasPressed()){
+                if (MinecraftClient.getInstance().player != null)
+                    MinecraftClient.getInstance().player.sendChatMessage("/iron");
             }
         });
 

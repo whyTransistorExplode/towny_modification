@@ -107,7 +107,7 @@ public class ModGui extends LightweightGuiDescription implements ModelMethod {
             new Thread(() -> {
                 Storage storage = Storage.getInstance();
                 storage.reloadBlackAndWhiteTowns(MainMod.getServerName());
-                storage.reloadFavPlayer(MainMod.getServerName());
+//                storage.reloadFavPlayer(MainMod.getServerName());
             }).start();
         }
     }

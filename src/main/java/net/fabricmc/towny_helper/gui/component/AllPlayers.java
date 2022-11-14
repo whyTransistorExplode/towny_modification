@@ -26,14 +26,7 @@ public class AllPlayers extends WPlainPanel implements ComponentListMethodsInter
     private ArrayList<Player> searchedPlayers;
     private WTextField searchNameInput;
 
-    public static AllPlayers instance = null;
-
-    public static AllPlayers getInstance(){
-        if (instance == null) instance = new AllPlayers();
-        return instance;
-    }
-
-    private AllPlayers(){
+    public AllPlayers(){
         setSize(380,200);
         initializeVariables();
         setEvents();
@@ -46,15 +39,14 @@ public class AllPlayers extends WPlainPanel implements ComponentListMethodsInter
             stats.setText(new LiteralText("Online: " + MainMod.getPlayers().size() + " players").setStyle(Style.EMPTY.withBold(true).withColor(0x0009f0)));
 
             BiConsumer<Player, PlayerModel> playerModelConfigurator = (Player player, PlayerModel playerModel) ->{
-                for (String favPl : Storage.getInstance().getFavouritePlayersList()) {
-                    if (favPl.equals(player.getName()))
+                for (Player favPl : Storage.getInstance().getFavouritePlayersList()) {
+                    if (favPl.getName().equals(player.getName()))
                     {
                     player.setFav(true);
                         break;
                     }
                 }
-
-                playerModel.setPlayer(player);
+                playerModel.setPlayer(player, true);
             };
             this.remove(playerWList);
             if (searchedPlayers!=null)

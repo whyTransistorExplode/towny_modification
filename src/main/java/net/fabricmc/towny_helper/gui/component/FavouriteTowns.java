@@ -73,7 +73,7 @@ public class FavouriteTowns extends WPlainPanel implements ComponentListMethodsI
             whiteList.setListItemHeight(30);
             whiteList.layout();
             this.add(whiteList,0,25,360,140);
-            infoFavTown.setText(Text.of("all liked towns: " + Storage.getInstance().getWhiteTowns().size()));
+            infoFavTown.setText(Text.of("all favourite towns: " + Storage.getInstance().getWhiteTowns().size()));
         }
     }
 }

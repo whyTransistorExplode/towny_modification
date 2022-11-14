@@ -5,13 +5,12 @@ import com.google.gson.JsonSyntaxException;
 import net.fabricmc.towny_helper.MainMod;
 import net.fabricmc.towny_helper.api.ApiPayload;
 import net.fabricmc.towny_helper.entity.InfoTown;
+import net.fabricmc.towny_helper.entity.Player;
 import net.fabricmc.towny_helper.entity.Town;
+import net.fabricmc.towny_helper.gui.component.FavouritePlayers;
 import net.minecraft.client.MinecraftClient;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,24 +20,18 @@ import java.util.Scanner;
 public class Storage {
     public static final String BASE_PATH = MinecraftClient.getInstance().runDirectory.getPath() + "/T_Settings/";
     public static final String DATA_PATH = BASE_PATH + "map_data/";
-    @Deprecated
-    public static final String BLACK_LISTED_TOWNS_SUFFIX = "_BTowns.dat";
-    public static final String BLACKED_TOWNS_SUFFIX = "_BTowns_JS.dat";
     public static final String ALL_TOWNS_SUFFIX = "_AllTowns.TDat";
-    @Deprecated
-    public static final String WHITE_LISTED_TOWNS_SUFFIX = "_WTowns.dat";
+    public static final String BLACKED_TOWNS_SUFFIX = "_BTowns_JS.dat";
     public static final String WHITE_TOWNS_SUFFIX = "_WTowns_JS.dat";
     public static final String FAVOURITE_PLAYERS_SUFFIX = "_FavPl.dat";
+    public static final String BLACKED_PLAYERS_SUFFIX = "_BlackPl.dat";
 
-    @Deprecated
-    private ArrayList<String> blackListedTowns = null;
     private ArrayList<Town> blackedTowns = null;
     public boolean blackedTownsStateChange = false;
-    @Deprecated
-    private ArrayList<String> whiteListedTowns = null;
+
     private ArrayList<Town> whitedTowns = null;
     public boolean whiteTownStateChange = false;
-    private ArrayList<String> favouritePlayers = null;
+    private ArrayList<Player> favouritePlayers = null;
 
     private ArrayList<InfoTown> dataInfo = null;
     private FileWriter fileWriter;
@@ -51,76 +44,27 @@ public class Storage {
     }
 
     private Storage() {
-
-    }
-
-    @Deprecated
-    private void getBlacklistedTownsFromFile(String serverName) {
-        try {
-            blackListedTowns = getArrayStringData(BASE_PATH + serverName + BLACK_LISTED_TOWNS_SUFFIX);
-        } catch (FileNotFoundException e) {
-            createFolderAndFiles(filePathCombiner(serverName, BLACK_LISTED_TOWNS_SUFFIX));
-            blackListedTowns = new ArrayList<>();
-        }
     }
 
     private void setBlackListedTownsFromFile(String serverName) {
         try {
-            blackedTowns = new ArrayList<Town>(Arrays.asList(getTownsAsObject(BASE_PATH + serverName + BLACKED_TOWNS_SUFFIX)));
+            blackedTowns = new ArrayList<>(Arrays.asList(getTownsAsObject(BASE_PATH + serverName + BLACKED_TOWNS_SUFFIX)));
         } catch (FileNotFoundException e) {
             createFolderAndFiles(filePathCombiner(serverName, BLACKED_TOWNS_SUFFIX));
             blackedTowns = new ArrayList<>();
         }
     }
 
-
     private void setWhiteListedTownsFromFile(String serverName) {
         try {
-            whitedTowns = new ArrayList<Town>(Arrays.asList(getTownsAsObject(BASE_PATH + serverName + WHITE_TOWNS_SUFFIX)));
+            whitedTowns = new ArrayList<>(Arrays.asList(getTownsAsObject(BASE_PATH + serverName + WHITE_TOWNS_SUFFIX)));
         } catch (FileNotFoundException e) {
             createFolderAndFiles(filePathCombiner(serverName, WHITE_TOWNS_SUFFIX));
             whitedTowns = new ArrayList<>();
         }
     }
 
-    @Deprecated
-    private void getWhitelistedTownsFromFile(String serverName) {
-        try {
-            whiteListedTowns = getArrayStringData(BASE_PATH + serverName + WHITE_LISTED_TOWNS_SUFFIX);
-        } catch (FileNotFoundException e) {
-            createFolderAndFiles(filePathCombiner(serverName, WHITE_LISTED_TOWNS_SUFFIX));
-            whiteListedTowns = new ArrayList<>();
-        }
-    }
-
-    public void reloadFavPlayer(String serverName) {
-        getFavouriteListsFromFile(serverName);
-    }
-
-    private void getFavouriteListsFromFile(String serverName) {
-        try {
-            favouritePlayers = getArrayStringData(BASE_PATH + serverName + FAVOURITE_PLAYERS_SUFFIX);
-
-        } catch (FileNotFoundException e) {
-            createFolderAndFiles(filePathCombiner(serverName, FAVOURITE_PLAYERS_SUFFIX));
-            favouritePlayers = new ArrayList<>();
-        }
-    }
-
-    @Deprecated
-    private ArrayList<String> getArrayStringData(String path) throws FileNotFoundException {
-
-        File file = new File(path);
-        Scanner scanner = new Scanner(file);
-
-        ArrayList<String> towns = new ArrayList<>();
-        while (scanner.hasNext()) {
-            towns.add(scanner.nextLine());
-        }
-        scanner.close();
-        return towns;
-    }
-
+    //file taker
     private String getStringData(String path) throws FileNotFoundException {
         File file = new File(path);
         StringBuilder stringBuilder = new StringBuilder();
@@ -131,19 +75,19 @@ public class Storage {
         return stringBuilder.toString();
     }
 
-    private boolean wipeDataFromFile(String path) {
+    private void wipeDataFromFile(String path) {
         try {
             FileWriter fileWriter = new FileWriter(path);
             fileWriter.write("");
             fileWriter.flush();
             fileWriter.close();
-            return true;
+
         } catch (IOException e) {
-            return false;
+            e.printStackTrace();
         }
     }
 
-    private Town[] getTownsAsObject(String path) throws FileNotFoundException, JsonSyntaxException {
+    private Town[] getTownsAsObject(String path) throws FileNotFoundException {
         Gson gson = new Gson();
         try {
             String hold = getStringData(path);
@@ -153,15 +97,6 @@ public class Storage {
             return new Town[10];
         }
     }
-
-    @Deprecated
-    public void reloadBlackAndWhiteListTowns(String serverName) {
-        if (serverName != null) {
-            getWhitelistedTownsFromFile(MainMod.getServerName());
-            getBlacklistedTownsFromFile(MainMod.getServerName());
-        } else System.err.println("Server name is not set");
-    }
-
     public void reloadBlackAndWhiteTowns(String serverName) {
         if (serverName != null) {
             setWhiteListedTownsFromFile(serverName);
@@ -169,39 +104,11 @@ public class Storage {
         } else System.err.println("server name is not present");
     }
 
-    @Deprecated
-    public void addTownBlackListed(String e) {
-        addAndSaveBlackListedTown(e);
-    }
-
-    @Deprecated
-    public void addTownWhiteListed(String e) {
-        addAndSaveWhiteListedTown(e);
-    }
-
-    @Deprecated
-    public void removeTownBlackListed(String e) {
-        int i = blackListedTowns.indexOf(e);
-        if (i != -1) {
-            blackListedTowns.remove(i);
-            try {
-                listWriteToFile(blackListedTowns, filePathCombiner(MainMod.getServerName(), BLACK_LISTED_TOWNS_SUFFIX));
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
-        }
-    }
-
     public void removeTownBlacked(Town town) {
         for (int i = 0; i < blackedTowns.size(); i++) {
             if (town.getName().equals(blackedTowns.get(i).getName())) {
                 blackedTowns.remove(i);
-                Storage.getInstance().blackedTownsStateChange = true;
-//                try {
-//                    listWriteToFileGSON(blackedTowns,filePathCombiner(MainMod.getServerName(),BLACKED_TOWNS_SUFFIX));
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                stateChangeBlackTown();
                 break;
             }
         }
@@ -212,77 +119,13 @@ public class Storage {
         return BASE_PATH + serverName + suffix;
     }
 
-    @Deprecated
-    public void removeTownWhiteListed(String e) {
-        int i = whiteListedTowns.indexOf(e);
-        if (i != -1) {
-            whiteListedTowns.remove(i);
-            try {
-                listWriteToFile(whiteListedTowns, filePathCombiner(MainMod.getServerName(), WHITE_LISTED_TOWNS_SUFFIX));
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
-        }
-    }
-
     public void removeTownWhited(Town town) {
-
         for (int i = 0; i < whitedTowns.size(); i++) {
             if (town.getName().equals(whitedTowns.get(i).getName())) {
                 whitedTowns.remove(i);
-                Storage.getInstance().whiteTownStateChange = true;
-//                try {
-//                    listWriteToFileGSON(whitedTowns,filePathCombiner(MainMod.getServerName(),WHITE_TOWNS_SUFFIX));
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                stateChangeWhiteTown();
                 break;
             }
-        }
-    }
-
-    public void addFavPlayer(String e) {
-
-        for (String favouritePlayer : favouritePlayers) {
-            if (e.equals(favouritePlayer)) return;
-        }
-        favouritePlayers.add(e);
-        try {
-            listWriteToFile(favouritePlayers, filePathCombiner(MainMod.getServerName(), FAVOURITE_PLAYERS_SUFFIX));
-        } catch (IOException ioException) {
-            createFolderAndFiles(filePathCombiner(MainMod.getServerName(), FAVOURITE_PLAYERS_SUFFIX));
-        }
-
-    }
-
-    public void removeFavPlayer(String e) {
-
-        int i = favouritePlayers.indexOf(e);
-        if (i != -1) {
-            favouritePlayers.remove(i);
-            try {
-                listWriteToFile(favouritePlayers, FAVOURITE_PLAYERS_SUFFIX);
-            } catch (IOException ioException) {
-                createFolderAndFiles(filePathCombiner(MainMod.getServerName(), FAVOURITE_PLAYERS_SUFFIX));
-            }
-        }
-    }
-
-    @Deprecated
-    private void addAndSaveBlackListedTown(String e) {
-        if (blackListedTowns == null) {
-            getBlacklistedTownsFromFile(MainMod.getServerName());
-        }
-        try {
-            if (e != null && e.length() > 0) {
-                for (String blackListedTown : blackListedTowns) {
-                    if (blackListedTown.equals(e)) return;
-                }
-                blackListedTowns.add(e);
-                listWriteToFile(blackListedTowns, filePathCombiner(MainMod.getServerName(), BLACK_LISTED_TOWNS_SUFFIX));
-            }
-        } catch (IOException e1) {
-            createFolderAndFiles(filePathCombiner(MainMod.getServerName(), BLACK_LISTED_TOWNS_SUFFIX));
         }
     }
 
@@ -295,52 +138,36 @@ public class Storage {
                 if (blackedTown.getName().equals(town.getName())) return false;
             }
             blackedTowns.add(town);
-            try {
-                listWriteToFileGSON(blackedTowns, filePathCombiner(MainMod.getServerName(), BLACKED_TOWNS_SUFFIX));
-            } catch (IOException e) {
-                createFolderAndFiles(filePathCombiner(MainMod.getServerName(), BLACKED_TOWNS_SUFFIX));
-            }
+            stateChangeBlackTown();
+            return true;
         }
-        return true;
+        return false;
     }
 
     public boolean addWhiteTown(Town town) {
         if (whitedTowns == null) {
             setWhiteListedTownsFromFile(MainMod.getServerName());
         }
-        try {
-            if (town != null && town.getName().length() > 0) {
-                for (Town wTown : whitedTowns) {
-                    if (wTown.getName().equals(town.getName())) return false;
-                }
-
-                whitedTowns.add(town);
-                listWriteToFileGSON(whitedTowns, filePathCombiner(MainMod.getServerName(), WHITE_TOWNS_SUFFIX));
+        if (town != null && town.getName().length() > 0) {
+            for (Town wTown : whitedTowns) {
+                if (wTown.getName().equals(town.getName())) return false;
             }
-        } catch (IOException e1) {
-            createFolderAndFiles(filePathCombiner(MainMod.getServerName(), WHITE_TOWNS_SUFFIX));
+            whitedTowns.add(town);
+            stateChangeWhiteTown();
+//                listWriteToFileGSON(whitedTowns, filePathCombiner(MainMod.getServerName(), WHITE_TOWNS_SUFFIX));
+            return true;
         }
-        return true;
+        return false;
     }
 
-    @Deprecated
-    private void addAndSaveWhiteListedTown(String e) {
-        if (whiteListedTowns == null) {
-            getWhitelistedTownsFromFile(MainMod.getServerName());
-        }
-        try {
-            if (e != null && e.length() > 0) {
-                for (String whiteListedTown : whiteListedTowns) {
-                    if (whiteListedTown.equals(e)) return;
-                }
-
-                whiteListedTowns.add(e);
-                listWriteToFile(whiteListedTowns, filePathCombiner(MainMod.getServerName(), WHITE_LISTED_TOWNS_SUFFIX));
-            }
-        } catch (IOException e1) {
-            createFolderAndFiles(filePathCombiner(MainMod.getServerName(), WHITE_LISTED_TOWNS_SUFFIX));
-        }
+    private void stateChangeWhiteTown() {
+        whiteTownStateChange = true;
     }
+
+    private void stateChangeBlackTown() {
+        blackedTownsStateChange = true;
+    }
+
 
     @Deprecated
     private void listWriteToFile(ArrayList<String> listArray, String path) throws IOException {
@@ -363,9 +190,9 @@ public class Storage {
      *
      * @param townsList a list to be written to a specific location
      * @param path      a variable for a specific location
-     * @throws IOException
+     * @throws IOException if any interruption happens when writing to a local file
      */
-    private void listWriteToFileGSON(ArrayList<Town> townsList, String path) throws IOException {
+    private void listWriteToFileGSON(ArrayList<?> townsList, String path) throws IOException {
         File file = new File(path);
         if (!file.exists()) createFolderAndFiles(path);
 
@@ -376,6 +203,13 @@ public class Storage {
         fileWriter.close();
     }
 
+    /**
+     * this method only to be used by a thread that is thrown in @InGameHudMixin class
+     *
+     * @param townsList a list of data that is to be saved
+     * @param path      a parameter path in local storage path
+     * @throws IOException if any interruption happens when writing to a local file
+     */
     public void threadListWriteGSON(ArrayList<Town> townsList, String path) throws IOException {
         listWriteToFileGSON(townsList, path);
     }
@@ -401,7 +235,7 @@ public class Storage {
 
     // save DATA section
 
-    public ApiPayload<?> saveOnlineData() {
+    public ApiPayload<?> saveOnlineDataTowns() {
         if (MainMod.getOnlineData() != null && MainMod.getOnlineData()) {
             String dateFormat = new SimpleDateFormat("yyyy_MM_dd_hhmmss").format(new Date());
             try {
@@ -436,6 +270,11 @@ public class Storage {
         return ApiPayload.sendFail();
     }
 
+    /**
+     * uses method above and checks if data info is present it just returns it otherwise calls for local storage check
+     *
+     * @return list of files that are present in a specific storage path
+     */
     public ApiPayload<ArrayList<InfoTown>> getTownsDataInfosLocal() {
         if (this.dataInfo == null)
             return loadTownsDataInfos();
@@ -458,7 +297,7 @@ public class Storage {
         }
     }
 
-    public ApiPayload loadLocalDataToMain(String infoName) {
+    public ApiPayload<?> loadLocalDataToMain(String infoName) {
         return loadTownsDataIntoMain(DATA_PATH + infoName + ALL_TOWNS_SUFFIX);
     }
 
@@ -483,8 +322,49 @@ public class Storage {
         return whitedTowns;
     }
 
-    public ArrayList<String> getFavouritePlayersList() {
+
+    // favourite players space
+    public ArrayList<Player> getFavouritePlayersList() {
+        if (favouritePlayers == null) loadFavouritePlayersIntoMain();
         return favouritePlayers;
+    }
+
+    private Player[] getPlayersAsObjects(String path){
+        Gson gson = new Gson();
+        try {
+            String holder = getStringData(path);
+            return gson.fromJson(holder, Player[].class);
+        } catch (JsonSyntaxException | FileNotFoundException e) {
+            wipeDataFromFile(path);
+            return new Player[10];
+        }
+    }
+    public void loadFavouritePlayersIntoMain(){
+            favouritePlayers = new ArrayList<>(Arrays.asList(getPlayersAsObjects(filePathCombiner(MainMod.getServerName(), FAVOURITE_PLAYERS_SUFFIX))));
+    }
+
+    public void addFavPlayer(Player e) {
+
+        if (favouritePlayers.contains(e)) return;
+
+        favouritePlayers.add(e);
+        try {
+            listWriteToFileGSON(favouritePlayers, filePathCombiner(MainMod.getServerName(), FAVOURITE_PLAYERS_SUFFIX));
+        } catch (IOException ioException) {
+            createFolderAndFiles(filePathCombiner(MainMod.getServerName(), FAVOURITE_PLAYERS_SUFFIX));
+        }
+    }
+    public void removeFavPlayer(Player e) {
+
+        int i = favouritePlayers.indexOf(e);
+        if (i != -1) {
+            favouritePlayers.remove(i);
+            try {
+                listWriteToFileGSON(favouritePlayers, filePathCombiner(MainMod.getServerName(), FAVOURITE_PLAYERS_SUFFIX));
+            } catch (IOException ioException) {
+                createFolderAndFiles(filePathCombiner(MainMod.getServerName(), FAVOURITE_PLAYERS_SUFFIX));
+            }
+        }
     }
 
 

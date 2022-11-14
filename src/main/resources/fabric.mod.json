@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "towny_helper",
-  "version": "0.0.1",
+  "version": "0.1.0",
 
   "name": "Example Mod",
   "description": "This is a mod to help towny mod with its resources!",

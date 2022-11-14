@@ -7,6 +7,7 @@ import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import net.fabricmc.towny_helper.MainMod;
 import net.fabricmc.towny_helper.api.ApiPayload;
 import net.fabricmc.towny_helper.entity.InfoTown;
+import net.fabricmc.towny_helper.gui.StorageGUI;
 import net.fabricmc.towny_helper.gui.model.StorageModel;
 import net.fabricmc.towny_helper.superiors.ComponentListMethodsInterface;
 import net.fabricmc.towny_helper.utils.Storage;
@@ -16,6 +17,7 @@ import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class StorageComponent extends WPlainPanel implements ComponentListMethodsInterface {
     public WListPanel<InfoTown, StorageModel> infoList;
@@ -31,6 +33,7 @@ public class StorageComponent extends WPlainPanel implements ComponentListMethod
         refreshList();
     }
 
+
     @Override
     public void refreshList() {
         ApiPayload<ArrayList<InfoTown>> content = Storage.getInstance().getTownsDataInfosLocal();
@@ -38,10 +41,12 @@ public class StorageComponent extends WPlainPanel implements ComponentListMethod
             ArrayList<InfoTown> infoTowns = content.getContent(); // (ArrayList<InfoTown>) Arrays.asList((InfoTown[]) content.getContent());
 
             BiConsumer<InfoTown, StorageModel> storageModelConfigurator = (infoTown, storageModel) -> storageModel.SetState(infoTown);
-            this.remove(infoList);
+           if (infoList != null) {
+               this.remove(infoList);
+           }
             infoList = new WListPanel<>(infoTowns, StorageModel::new, storageModelConfigurator);
+//            infoList.layout();
             infoList.setListItemHeight(30);
-            infoList.layout();
             infoList.addPainters();
             infoLabel.setText(Text.of("saved: " + infoTowns.size()));
             this.add(infoList, 5, 30, 370, 140);
@@ -49,9 +54,14 @@ public class StorageComponent extends WPlainPanel implements ComponentListMethod
     }
 
     public void update() {
-        if (MainMod.getOnlineData() != null && !MainMod.getOnlineData())
-            saveCurrentDataButton.setEnabled(false);
-        else saveCurrentDataButton.setEnabled(true);
+        saveCurrentDataButton.setEnabled(MainMod.getOnlineData() == null || MainMod.getOnlineData());
+        if (infoList != null) {
+            System.out.println("hello");
+            infoList.streamChildren().forEach((child) -> {
+                if (child instanceof StorageModel) {
+                    ((StorageModel) child).refresh();
+                }});
+        }
     }
 
     @Override
@@ -67,6 +77,7 @@ public class StorageComponent extends WPlainPanel implements ComponentListMethod
         this.add(reloadButton, 155, 3, 100, 40);
 
         this.add(saveCurrentDataButton, 257, 3, 70, 40);
+
     }
 
     @Override
@@ -75,8 +86,9 @@ public class StorageComponent extends WPlainPanel implements ComponentListMethod
             Storage.getInstance().loadTownsDataInfos();
             refreshList();
         });
+
         this.saveCurrentDataButton.setOnClick(() -> {
-            Storage.getInstance().saveOnlineData();
+            Storage.getInstance().saveOnlineDataTowns();
             Storage.getInstance().loadTownsDataInfos();
             refreshList();
         });

@@ -33,10 +33,6 @@ public class PlayerModel extends WPlainPanel {
         setEvents();
         registerWidgets();
     }
-    public void notOnline(String offlineName){
-        name.setText(Text.of(offlineName + "  -> offline "));
-        findButton.setEnabled(false);
-    }
 
 
     private void refresh(){
@@ -44,9 +40,11 @@ public class PlayerModel extends WPlainPanel {
             String s = "";
             if (!player.getWorld().equals("world"))
                 s = " -> Hidden";
-            for (String favList : Storage.getInstance().getFavouritePlayersList()) {
-                if (player.getName().equals(favList)) {
-                    color = Formatting.GOLD;
+
+            for (Player onePlayer : Storage.getInstance().getFavouritePlayersList()) {
+                if (onePlayer.getName().equals(player.getName()))
+                {
+                    color = Formatting.BOLD;
                     break;
                 }
             }
@@ -70,16 +68,21 @@ public class PlayerModel extends WPlainPanel {
         });
         favButton.setOnClick(() -> {
             if (player.getFav() != null && player.getFav())
-                Storage.getInstance().removeFavPlayer(player.getName());
+                Storage.getInstance().removeFavPlayer(player);
             else
-                Storage.getInstance().addFavPlayer(player.getName());
+                Storage.getInstance().addFavPlayer(player);
+            refresh();
         });
     }
 
 
-    public void setPlayer(Player player) {
+    public void setPlayer(Player player, boolean isOnline) {
         this.player = player;
         refresh();
+        if (!isOnline){
+            name.setText(Text.of(player.getName() + "  -> offline "));
+            findButton.setEnabled(false);
+        }
     }
 
     public void initializeVariables(){

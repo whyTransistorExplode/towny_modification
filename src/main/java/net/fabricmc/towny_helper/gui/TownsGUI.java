@@ -23,7 +23,6 @@ public class TownsGUI extends LightweightGuiDescription {
     }
 
     private TownsGUI() {
-
       refreshGUI();
     }
     public void refreshGUI(){
